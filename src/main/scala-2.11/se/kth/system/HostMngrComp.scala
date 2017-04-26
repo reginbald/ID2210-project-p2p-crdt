@@ -1,9 +1,10 @@
 package se.kth.system
 
+import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import se.kth.app.mngr.AppMngrComp
-import se.sics.kompics.{Component, KompicsEvent, Positive, Start}
+import se.sics.kompics.{ComponentDefinition => _, Init => _, _}
 import se.sics.kompics.sl._
 import se.sics.kompics.network.Network
 import se.sics.kompics.timer.Timer
@@ -20,7 +21,7 @@ import se.sics.ktoolbox.util.overlays.view.OverlayViewUpdatePort
 /**
   * Created by reginbald on 26/04/2017.
   */
-class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition{
+class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with StrictLogging{
   private val LOG: Logger = LoggerFactory.getLogger(classOf[HostMngrComp])
   private var logPrefix: String = " "
   //*****************************CONNECTIONS**********************************
@@ -30,7 +31,7 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition{
   /*private var selfAdr: KAddress = null
   private var bootstrapServer: KAddress = null
   private var croupierId: OverlayId = null*/
-  private var (selfAdr, bootstrapServer, croupierId) = init match {
+  private val (selfAdr, bootstrapServer, croupierId) = init match {
     case Init(selfAdr:KAddress, bootstrapServer:KAddress, croupierId:OverlayId) => (selfAdr, bootstrapServer, croupierId)
   }
   //***************************INTERNAL_STATE*********************************
@@ -48,7 +49,7 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition{
   //  subscribe(handleStart, control)
   //}
 
-  private[system] val handleStart: Handler[_ <: KompicsEvent] = new Handler[Start]() {
+  /*private[system] val handleStart: Handler[_ <: KompicsEvent] = new Handler[Start]() {
     def handle(event: Start) {
       LOG.info("{}starting...", logPrefix)
       connectBootstrapClient()
@@ -57,6 +58,17 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition{
       trigger(Start.event, bootstrapClientComp.control)
       trigger(Start.event, overlayMngrComp.control)
       trigger(Start.event, appMngrComp.control)
+    }
+  }*/
+  ctrl uponEvent{
+    case _: Start => handle{
+      logger.info("HostMngrComp starting ...")
+      connectBootstrapClient()
+      connectOverlayMngr()
+      connectApp()
+      trigger(Start.event, bootstrapClientComp.control())
+      trigger(Start.event, overlayMngrComp.control())
+      trigger(Start.event, appMngrComp.control())
     }
   }
 
