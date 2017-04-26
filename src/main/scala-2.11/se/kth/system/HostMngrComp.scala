@@ -24,12 +24,15 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition{
   private val LOG: Logger = LoggerFactory.getLogger(classOf[HostMngrComp])
   private var logPrefix: String = " "
   //*****************************CONNECTIONS**********************************
-  private[system] val timerPort: Positive[Timer] = requires(classOf[Timer])
-  private[system] val networkPort: Positive[Network] = requires(classOf[Network])
+  private val timerPort: Positive[Timer] = requires[Timer]
+  private val networkPort: Positive[Network] = requires[Network]
   //***************************EXTERNAL_STATE*********************************
-  private var selfAdr: KAddress = null
+  /*private var selfAdr: KAddress = null
   private var bootstrapServer: KAddress = null
-  private var croupierId: OverlayId = null
+  private var croupierId: OverlayId = null*/
+  private var (selfAdr, bootstrapServer, croupierId) = init match {
+    case Init(selfAdr:KAddress, bootstrapServer:KAddress, croupierId:OverlayId) => (selfAdr, bootstrapServer, croupierId)
+  }
   //***************************INTERNAL_STATE*********************************
   private var bootstrapClientComp: Component = null
   private var overlayMngrComp: Component = null
