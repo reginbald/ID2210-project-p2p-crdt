@@ -3,7 +3,7 @@ package se.kth.system
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import se.kth.app.mngr.AppMngrComp
-import se.sics.kompics.{ComponentDefinition => _, Handler => _, _}
+import se.sics.kompics.{Component, KompicsEvent, Positive, Start}
 import se.sics.kompics.sl._
 import se.sics.kompics.network.Network
 import se.sics.kompics.timer.Timer
@@ -20,7 +20,7 @@ import se.sics.ktoolbox.util.overlays.view.OverlayViewUpdatePort
 /**
   * Created by reginbald on 26/04/2017.
   */
-class HostMngrComp(int: Int[HostMngrComp]) extends ComponentDefinition{
+class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition{
   private val LOG: Logger = LoggerFactory.getLogger(classOf[HostMngrComp])
   private var logPrefix: String = " "
   //*****************************CONNECTIONS**********************************
@@ -35,15 +35,15 @@ class HostMngrComp(int: Int[HostMngrComp]) extends ComponentDefinition{
   private var overlayMngrComp: Component = null
   private var appMngrComp: Component = null
 
-  def this(init: HostMngrComp.Init) {
-    this()
-    selfAdr = init.selfAdr
-    logPrefix = "<nid:" + selfAdr.getId + ">"
-    LOG.info("{}initiating...", logPrefix)
-    bootstrapServer = init.bootstrapServer
-    croupierId = init.croupierId
-    subscribe(handleStart, control)
-  }
+  //def this(init: HostMngrComp.Init) {
+  //  this()
+  //  selfAdr = init.selfAdr
+  //  logPrefix = "<nid:" + selfAdr.getId + ">"
+  //  LOG.info("{}initiating...", logPrefix)
+  //  bootstrapServer = init.bootstrapServer
+  //  croupierId = init.croupierId
+  //  subscribe(handleStart, control)
+  //}
 
   private[system] val handleStart: Handler[_ <: KompicsEvent] = new Handler[Start]() {
     def handle(event: Start) {
@@ -74,6 +74,6 @@ class HostMngrComp(int: Int[HostMngrComp]) extends ComponentDefinition{
     connect(appMngrComp.getNegative(classOf[OverlayMngrPort]), overlayMngrComp.getPositive(classOf[OverlayMngrPort]), Channel.TWO_WAY)
   }
 
-  class Init(val selfAdr: KAddress, val bootstrapServer: KAddress, val croupierId: OverlayId) extends se.sics.kompics.Init[HostMngrComp] {
-  }
+  //class Init(val selfAdr: KAddress, val bootstrapServer: KAddress, val croupierId: OverlayId) extends se.sics.kompics.Init[HostMngrComp] {
+  //}
 }
