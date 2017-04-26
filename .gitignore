@@ -97,3 +97,8 @@ project/plugins/project/
 .lib/
 
 # End of https://www.gitignore.io/api/sbt
+project/project/
+src/main/scala/
+src/test/
+
+.idea/workspace.xml

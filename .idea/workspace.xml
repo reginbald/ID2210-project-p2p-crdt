@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="99c80ef0-ebdc-485c-ad3c-bce0e21e5d57" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala-2.11/se/kth/app/mngr/AppMngrComp.scala" afterPath="$PROJECT_DIR$/src/main/scala-2.11/se/kth/app/mngr/AppMngrComp.scala" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -54,14 +54,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AppMngrComp.scala" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AppMngrComp.scala" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala-2.11/se/kth/app/mngr/AppMngrComp.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="450">
-              <caret line="45" column="2" lean-forward="false" selection-start-line="45" selection-start-column="2" selection-end-line="45" selection-end-column="2" />
+              <caret line="45" column="0" lean-forward="false" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
               <folding>
-                <marker date="1493214062000" expanded="true" signature="3570:3572" ph="{...}" />
+                <marker date="1493214126000" expanded="true" signature="3568:3570" ph="{...}" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="399">
+              <caret line="98" column="28" lean-forward="false" selection-start-line="98" selection-start-column="28" selection-end-line="98" selection-end-column="28" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -158,6 +168,7 @@
         <option value="$PROJECT_DIR$/src/main/scala-2.11/se/kth/system/SystemSetup.scala" />
         <option value="$PROJECT_DIR$/src/main/scala-2.11/se/kth/system/HostMngrComp.scala" />
         <option value="$PROJECT_DIR$/src/main/scala-2.11/se/kth/app/mngr/AppMngrComp.scala" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -1081,7 +1092,7 @@
       <option name="presentableId" value="Default" />
       <updated>1493188272269</updated>
       <workItem from="1493188273732" duration="4378000" />
-      <workItem from="1493206288234" duration="6618000" />
+      <workItem from="1493206288234" duration="6744000" />
     </task>
     <task id="LOCAL-00001" summary="AppComp scala conversion update">
       <created>1493207131140</created>
@@ -1125,11 +1136,18 @@
       <option name="project" value="LOCAL" />
       <updated>1493213854658</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="AppMngrComp refactor">
+      <created>1493214128127</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1493214128127</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10996000" />
+    <option name="totallyTimeSpent" value="11122000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1440" height="874" extended-state="6" />
@@ -1181,7 +1199,8 @@
     <MESSAGE value="SystemSetup converted to Scala" />
     <MESSAGE value="init input" />
     <MESSAGE value="init input to class added" />
-    <option name="LAST_COMMIT_MESSAGE" value="init input to class added" />
+    <MESSAGE value="AppMngrComp refactor" />
+    <option name="LAST_COMMIT_MESSAGE" value="AppMngrComp refactor" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -1514,10 +1533,18 @@
     <entry file="file://$PROJECT_DIR$/src/main/scala-2.11/se/kth/app/mngr/AppMngrComp.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
-          <caret line="45" column="2" lean-forward="false" selection-start-line="45" selection-start-column="2" selection-end-line="45" selection-end-column="2" />
+          <caret line="45" column="0" lean-forward="false" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
           <folding>
-            <marker date="1493214062000" expanded="true" signature="3570:3572" ph="{...}" />
+            <marker date="1493214126000" expanded="true" signature="3568:3570" ph="{...}" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="98" column="28" lean-forward="false" selection-start-line="98" selection-start-column="28" selection-end-line="98" selection-end-column="28" />
+          <folding />
         </state>
       </provider>
     </entry>
