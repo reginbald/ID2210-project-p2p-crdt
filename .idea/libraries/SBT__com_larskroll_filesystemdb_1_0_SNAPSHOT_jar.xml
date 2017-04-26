@@ -2,6 +2,7 @@
   <library name="SBT: com.larskroll:filesystemdb:1.0-SNAPSHOT:jar">
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/com/larskroll/filesystemdb/1.0-SNAPSHOT/filesystemdb-1.0-SNAPSHOT.jar!/" />
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.larskroll/filesystemdb/jars/filesystemdb-1.0-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

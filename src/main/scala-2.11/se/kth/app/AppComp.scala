@@ -30,9 +30,9 @@ class AppComp extends ComponentDefinition{
   private val LOG = LoggerFactory.getLogger(classOf[AppComp])
   private var logPrefix = " "
   //*******************************CONNECTIONS********************************
-  private[app] val timerPort = requires(classOf[Nothing])
-  private[app] val networkPort = requires(classOf[Nothing])
-  private[app] val croupierPort = requires(classOf[Nothing])
+  private[app] val timerPort = requires[Timer] //requires(classOf[Nothing])
+  private[app] val networkPort = requires[Network]//requires(classOf[Nothing])
+  private[app] val croupierPort = requires[CroupierPort]//requires(classOf[Nothing])
   //**************************************************************************
   private var selfAdr = null
 

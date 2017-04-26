@@ -2,8 +2,11 @@
   <library name="SBT: se.sics.kompics:kompics-core:0.9.4-SNAPSHOT:jar">
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/se/sics/kompics/kompics-core/0.9.4-SNAPSHOT/kompics-core-0.9.4-SNAPSHOT.jar!/" />
+      <root url="jar://$USER_HOME$/.ivy2/cache/se.sics.kompics/kompics-core/jars/kompics-core-0.9.4-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/se.sics.kompics/kompics-core/srcs/kompics-core-0.9.4-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

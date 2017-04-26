@@ -2,6 +2,7 @@
   <library name="SBT: se.sics.ktoolbox.util:kcore:2.0.2-SNAPSHOT:jar">
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/se/sics/ktoolbox/util/kcore/2.0.2-SNAPSHOT/kcore-2.0.2-SNAPSHOT.jar!/" />
+      <root url="jar://$USER_HOME$/.ivy2/cache/se.sics.ktoolbox.util/kcore/jars/kcore-2.0.2-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

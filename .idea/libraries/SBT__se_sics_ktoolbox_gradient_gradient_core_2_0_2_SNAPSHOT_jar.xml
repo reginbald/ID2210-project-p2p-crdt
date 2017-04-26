@@ -2,6 +2,7 @@
   <library name="SBT: se.sics.ktoolbox.gradient:gradient-core:2.0.2-SNAPSHOT:jar">
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/se/sics/ktoolbox/gradient/gradient-core/2.0.2-SNAPSHOT/gradient-core-2.0.2-SNAPSHOT.jar!/" />
+      <root url="jar://$USER_HOME$/.ivy2/cache/se.sics.ktoolbox.gradient/gradient-core/jars/gradient-core-2.0.2-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
