@@ -20,7 +20,7 @@ import se.sics.ktoolbox.util.overlays.view.OverlayViewUpdatePort
 /**
   * Created by reginbald on 26/04/2017.
   */
-class HostMngrComp extends ComponentDefinition{
+class HostMngrComp(int: Int[HostMngrComp]) extends ComponentDefinition{
   private val LOG: Logger = LoggerFactory.getLogger(classOf[HostMngrComp])
   private var logPrefix: String = " "
   //*****************************CONNECTIONS**********************************
