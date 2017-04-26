@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: se.sics.kompics.basic:kompics-component-netty-network:0.9.4-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/se/sics/kompics/basic/kompics-component-netty-network/0.9.4-SNAPSHOT/kompics-component-netty-network-0.9.4-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

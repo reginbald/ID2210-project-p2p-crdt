@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: com.larskroll:filesystemdb:1.0-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/larskroll/filesystemdb/1.0-SNAPSHOT/filesystemdb-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

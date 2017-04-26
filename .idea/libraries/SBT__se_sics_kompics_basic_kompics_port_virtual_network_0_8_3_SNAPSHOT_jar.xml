@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: se.sics.kompics.basic:kompics-port-virtual-network:0.8.3-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/se/sics/kompics/basic/kompics-port-virtual-network/0.8.3-SNAPSHOT/kompics-port-virtual-network-0.8.3-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: com.larskroll:fixed-integer:1.0-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/larskroll/fixed-integer/1.0-SNAPSHOT/fixed-integer-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

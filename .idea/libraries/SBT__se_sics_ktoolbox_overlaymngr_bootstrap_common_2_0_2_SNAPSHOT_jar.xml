@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: se.sics.ktoolbox.overlaymngr.bootstrap:common:2.0.2-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/se/sics/ktoolbox/overlaymngr/bootstrap/common/2.0.2-SNAPSHOT/common-2.0.2-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
