@@ -15,6 +15,7 @@ class SystemSetup {
     OverlayRegistry.initiate(new OverlayId.BasicTypeFactory(0.toByte), new OverlayId.BasicTypeComparator)
     val croupierOwnerId: Byte = 1
     OverlayRegistry.registerPrefix(OverlayId.BasicTypes.CROUPIER.name, croupierOwnerId)
+
     val croupierBaseIdFactory: IdentifierFactory[_ <: Identifier] = IdentifierRegistry.lookup(BasicIdentifiers.Values.OVERLAY.toString)
     val croupierIdFactory: OverlayIdFactory = new OverlayIdFactory(croupierBaseIdFactory, OverlayId.BasicTypes.CROUPIER, croupierOwnerId)
     croupierIdFactory.id(new BasicBuilders.StringBuilder("0"))
