@@ -34,7 +34,7 @@ class AppMngrComp extends ComponentDefinition with StrictLogging {
   private var pendingCroupierConnReq = null
   //**************************************************************************
   def this(init: AppMngrComp.Init) {
-    this()
+    //this()
     selfAdr = init.selfAdr
     logPrefix = "<nid:" + selfAdr.getId + ">"
     LOG.info("{}initiating...", logPrefix)
