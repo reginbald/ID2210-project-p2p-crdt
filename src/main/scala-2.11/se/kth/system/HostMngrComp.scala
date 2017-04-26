@@ -3,8 +3,9 @@ package se.kth.system
 import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import se.kth.app.AppComp
 import se.kth.app.mngr.AppMngrComp
-import se.sics.kompics.{ComponentDefinition => _, Init => _, _}
+import se.sics.kompics.{Channel, Component, Positive, Start}
 import se.sics.kompics.sl._
 import se.sics.kompics.network.Network
 import se.sics.kompics.timer.Timer
@@ -21,7 +22,7 @@ import se.sics.ktoolbox.util.overlays.view.OverlayViewUpdatePort
 /**
   * Created by reginbald on 26/04/2017.
   */
-class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with StrictLogging{
+class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with StrictLogging {
   private val LOG: Logger = LoggerFactory.getLogger(classOf[HostMngrComp])
   private var logPrefix: String = " "
   //*****************************CONNECTIONS**********************************
@@ -32,7 +33,7 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with St
   private var bootstrapServer: KAddress = null
   private var croupierId: OverlayId = null*/
   private val (selfAdr, bootstrapServer, croupierId) = init match {
-    case Init(selfAdr:KAddress, bootstrapServer:KAddress, croupierId:OverlayId) => (selfAdr, bootstrapServer, croupierId)
+    case Init(selfAdr: KAddress, bootstrapServer: KAddress, croupierId: OverlayId) => (selfAdr, bootstrapServer, croupierId)
   }
   //***************************INTERNAL_STATE*********************************
   private var bootstrapClientComp: Component = null
@@ -60,8 +61,8 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with St
       trigger(Start.event, appMngrComp.control)
     }
   }*/
-  ctrl uponEvent{
-    case _: Start => handle{
+  ctrl uponEvent {
+    case _: Start => handle {
       logger.info("HostMngrComp starting ...")
       connectBootstrapClient()
       connectOverlayMngr()
@@ -85,10 +86,8 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with St
 
   private def connectApp() {
     val extPorts: AppMngrComp.ExtPort = new AppMngrComp.ExtPort(timerPort, networkPort, overlayMngrComp.getPositive(classOf[CroupierPort]), overlayMngrComp.getNegative(classOf[OverlayViewUpdatePort]))
-    appMngrComp = create(classOf[AppMngrComp], new AppMngrComp.Init(extPorts, selfAdr, croupierId))
+    appMngrComp = create(classOf[AppMngrComp], Init[AppMngrComp](extPorts, selfAdr, croupierId))
     connect(appMngrComp.getNegative(classOf[OverlayMngrPort]), overlayMngrComp.getPositive(classOf[OverlayMngrPort]), Channel.TWO_WAY)
   }
-
-  //class Init(val selfAdr: KAddress, val bootstrapServer: KAddress, val croupierId: OverlayId) extends se.sics.kompics.Init[HostMngrComp] {
-  //}
 }
+

@@ -1,5 +1,7 @@
 package se.kth.app.sim
 
+import java.util
+
 import se.kth.sim.compatibility.SimNodeIdExtractor
 import se.kth.system.HostMngrComp
 import se.sics.kompics.network.Address
@@ -10,15 +12,17 @@ import se.sics.kompics.simulator.adaptor.distributions.extra.BasicIntSequentialD
 import se.sics.kompics.simulator.events.system.SetupEvent
 import se.sics.kompics.simulator.events.system.StartNodeEvent
 import se.sics.kompics.simulator.network.identifier.IdentifierExtractor
+import se.sics.kompics.sl.{ComponentDefinition, Init}
 import se.sics.ktoolbox.omngr.bootstrap.BootstrapServerComp
 import se.sics.ktoolbox.util.network.KAddress
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /**
   * Created by reginbald on 26/04/2017.
   */
-class ScenarioGen {
+object ScenarioGen {
   val systemSetupOp = new Operation[SetupEvent]() {
     override def generate = new SetupEvent() {
       override def getIdentifierExtractor: IdentifierExtractor = new SimNodeIdExtractor
@@ -31,7 +35,7 @@ class ScenarioGen {
 
       override def getNodeAddress: Address = selfAdr
 
-      override def getComponentDefinition: Class[_] = classOf[BootstrapServerComp]
+      override def getComponentDefinition: Class[BootstrapServerComp] = classOf[BootstrapServerComp]
 
       override def getComponentInit: BootstrapServerComp.Init = new BootstrapServerComp.Init(selfAdr)
     }
@@ -43,19 +47,19 @@ class ScenarioGen {
 
       override def getNodeAddress: Address = selfAdr
 
-      override def getComponentDefinition: Class[_] = classOf[HostMngrComp]
+      override def getComponentDefinition: Class[HostMngrComp] = classOf[HostMngrComp]
 
-      override def getComponentInit: HostMngrComp.Init = new HostMngrComp.Init(
+      override def getComponentInit: Init[HostMngrComp] = new Init(
         selfAdr,
         ScenarioSetup.bootstrapServer,
         ScenarioSetup.croupierOId
       )
 
-      override def initConfigUpdate: mutable.HashMap[String, AnyRef] = {
-        val nodeConfig = new mutable.HashMap[String, AnyRef]
+      override def initConfigUpdate: util.HashMap[String, Object] = {
+        val nodeConfig = new java.util.HashMap[String, Object]
         nodeConfig.put("system.id", nodeId)
-        nodeConfig.put("system.seed", ScenarioSetup.getNodeSeed(nodeId))
-        nodeConfig.put("system.port", ScenarioSetup.appPort)
+        nodeConfig.put("system.seed", long2Long(ScenarioSetup.getNodeSeed(nodeId)))
+        nodeConfig.put("system.port", int2Integer(ScenarioSetup.appPort))
         nodeConfig
       }
     }

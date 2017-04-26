@@ -14,7 +14,7 @@ import se.sics.ktoolbox.util.network.nat.NatAwareAddressImpl
 /**
   * Created by reginbald on 26/04/2017.
   */
-class ScenarioSetup {
+object ScenarioSetup {
 
   val scenarioSeed: Long = 1234
   val appPort: Int = 12345

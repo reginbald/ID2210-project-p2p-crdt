@@ -9,8 +9,9 @@ import se.sics.ktoolbox.util.identifiable.overlay.OverlayRegistry
 /**
   * Created by reginbald on 26/04/2017.
   */
-class SystemSetup {
-  def setup: OverlayId = {
+object SystemSetup {
+
+  def setup(): OverlayId = {
     BasicIdentifiers.registerDefaults2(scenarioSeed)
     OverlayRegistry.initiate(new OverlayId.BasicTypeFactory(0.toByte), new OverlayId.BasicTypeComparator)
     val croupierOwnerId: Byte = 1

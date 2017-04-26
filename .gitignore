@@ -102,3 +102,5 @@ src/main/scala/
 src/test/
 
 .idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries

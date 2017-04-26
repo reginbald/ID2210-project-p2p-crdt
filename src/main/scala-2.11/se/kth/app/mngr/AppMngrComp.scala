@@ -1,7 +1,6 @@
 package se.kth.app.mngr
 
 import com.typesafe.scalalogging.StrictLogging
-import org.slf4j.LoggerFactory
 import se.kth.app.AppComp
 import se.kth.app.mngr.AppMngrComp.ExtPort
 import se.kth.croupier.util.NoView
@@ -10,10 +9,8 @@ import se.sics.kompics.{ComponentDefinition => _, Init => _, _}
 import se.sics.kompics.sl._
 import se.sics.kompics.timer.Timer
 import se.sics.ktoolbox.croupier.CroupierPort
-import se.sics.ktoolbox.omngr.bootstrap.BootstrapClientComp
 import se.sics.ktoolbox.overlaymngr.OverlayMngrPort
 import se.sics.ktoolbox.overlaymngr.events.OMngrCroupier
-import se.sics.ktoolbox.overlaymngr.events.OMngrCroupier.ConnectRequest
 import se.sics.ktoolbox.util.identifiable.overlay.OverlayId
 import se.sics.ktoolbox.util.network.KAddress
 import se.sics.ktoolbox.util.overlays.view.{OverlayViewUpdate, OverlayViewUpdatePort}
