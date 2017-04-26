@@ -5,5 +5,5 @@ import se.sics.kompics.KompicsEvent
 /**
   * Created by reginbald on 26/04/2017.
   */
-case class Ping extends KompicsEvent
-case class Pong extends KompicsEvent
+case class Ping() extends KompicsEvent
+case class Pong() extends KompicsEvent
