@@ -3,6 +3,7 @@ package se.kth.app.mngr
 import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
 import se.kth.app.AppComp
+import se.kth.app.mngr.AppMngrComp.ExtPort
 import se.kth.croupier.util.NoView
 import se.sics.kompics.network.Network
 import se.sics.kompics.{ComponentDefinition => _, Init => _, _}
@@ -82,6 +83,16 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
         throw new RuntimeException("Application component is None")
     }
   }
+
+   /*case class ExtPort(
+    timer: Positive[Timer],
+    network: Positive[Network],
+    croupier: Positive[CroupierPort],
+    viewUpdate: Negative[OverlayViewUpdatePort]
+  )*/
+
+}
+object AppMngrComp {
 
   case class ExtPort(
     timer: Positive[Timer],
