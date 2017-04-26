@@ -1,5 +1,6 @@
 package se.kth.app.mngr
 
+import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
 import se.kth.app.AppComp
 import se.kth.croupier.util.NoView
@@ -18,9 +19,9 @@ import se.sics.ktoolbox.util.overlays.view.{OverlayViewUpdate, OverlayViewUpdate
 /**
   * Created by reginbald on 26/04/2017.
   */
-class AppMngrComp extends ComponentDefinition{
-  private val LOG = LoggerFactory.getLogger(classOf[BootstrapClientComp])
-  private var logPrefix = ""
+class AppMngrComp extends ComponentDefinition with StrictLogging {
+  //private val LOG = LoggerFactory.getLogger(classOf[BootstrapClientComp])
+  //private var logPrefix = ""
   //*****************************CONNECTIONS**********************************
   private[mngr] val omngrPort = requires(classOf[OverlayMngrPort])
   //***************************EXTERNAL_STATE*********************************
