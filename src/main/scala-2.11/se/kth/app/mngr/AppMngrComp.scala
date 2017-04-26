@@ -27,15 +27,6 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   //private[mngr] val omngrPort = requires[OverlayMngrPort]//requires(classOf[OverlayMngrPort])
   private val omngrPort = requires[OverlayMngrPort]
   //***************************EXTERNAL_STATE*********************************
-  //private var extPorts = null
-  //private var selfAdr = null
-  //private var croupierId = null
-  //***************************INTERNAL_STATE*********************************
-  private var appComp = None: Option[Component]
-  //******************************AUX_STATE***********************************
-  private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
-  //**************************************************************************
-
   private val extPorts = init match {
     case Init(e: ExtPort) => e
   }
@@ -47,6 +38,11 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   private val croupierId = init match {
     case Init(c: OverlayId) => c
   }
+  //***************************INTERNAL_STATE*********************************
+  private var appComp = None: Option[Component]
+  //******************************AUX_STATE***********************************
+  private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
+  //**************************************************************************
 
   ctrl uponEvent {
     case _: Start => handle {
@@ -73,7 +69,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     }
   }
 
-  def connectAppComp() {
+  private def connectAppComp() {
     appComp = Some(create(classOf[AppComp], Init[AppComp](self)))
 
     appComp match {
@@ -87,6 +83,22 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     }
   }
 
-  case class ExtPort(timer: Positive[Timer], network: Positive[Network], croupier: Positive[CroupierPort], viewUpdate: Negative[OverlayViewUpdatePort])
+  case class ExtPort(
+    timer: Positive[Timer],
+    network: Positive[Network],
+    croupier: Positive[CroupierPort],
+    viewUpdate: Negative[OverlayViewUpdatePort]
+  )
 
 }
+/*
+Handler handleCroupierConnected = new Handler<OMngrCroupier.ConnectResponse>() {
+    @Override
+    public void handle(OMngrCroupier.ConnectResponse event) {
+      LOG.info("{}overlays connected", logPrefix);
+      connectAppComp();
+      trigger(Start.event, appComp.control());
+      trigger(new OverlayViewUpdate.Indication<>(croupierId, false, new NoView()), extPorts.viewUpdatePort);
+    }
+  };
+ */
