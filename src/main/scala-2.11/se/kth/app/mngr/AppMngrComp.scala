@@ -91,14 +91,3 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   )
 
 }
-/*
-Handler handleCroupierConnected = new Handler<OMngrCroupier.ConnectResponse>() {
-    @Override
-    public void handle(OMngrCroupier.ConnectResponse event) {
-      LOG.info("{}overlays connected", logPrefix);
-      connectAppComp();
-      trigger(Start.event, appComp.control());
-      trigger(new OverlayViewUpdate.Indication<>(croupierId, false, new NoView()), extPorts.viewUpdatePort);
-    }
-  };
- */
