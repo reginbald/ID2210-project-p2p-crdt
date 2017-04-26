@@ -19,9 +19,9 @@ import scala.collection.JavaConversions._
 class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLogging {
   //private var logPrefix = " "
   //*******************************CONNECTIONS********************************
-  val timerPort = requires[Timer]
-  val networkPort = requires[Network]
-  val croupierPort = requires[CroupierPort]
+  val timerPort: PositivePort[Timer] = requires[Timer]
+  val networkPort: PositivePort[Network] = requires[Network]
+  val croupierPort: PositivePort[CroupierPort] = requires[CroupierPort]
   //**************************************************************************
 
   private val self = init match {
@@ -37,9 +37,9 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
 
   croupierPort uponEvent {
     case sample:CroupierSample[_] => handle {
-      if(!sample.publicSample.isEmpty()){
+      if(!sample.publicSample.isEmpty){
         logger.info("Handling croupier sample")
-        val samples = sample.publicSample.values().map{ x => x.getSource()}
+        val samples = sample.publicSample.values().map{ x => x.getSource}
         samples.foreach{ peer: KAddress =>
           val header = new BasicHeader[KAddress](self, peer, Transport.UDP)
           val msg = new BasicContentMsg[KAddress, KHeader[KAddress], Ping](header, new Ping)
@@ -53,11 +53,11 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
 
   networkPort uponEvent {
     case msg:BasicContentMsg[_, _, Ping] => handle {
-      logger.info("Received ping from: " + msg.getHeader().getSource());
-      trigger(msg.answer(new Pong()), networkPort);
+      logger.info("Received ping from: " + msg.getHeader.getSource)
+      trigger(msg.answer(Pong()), networkPort)
     }
     case msg:BasicContentMsg[_, _, Pong] => handle {
-      logger.info("Received pong from: " + msg.getHeader().getSource());
+      logger.info("Received pong from: " + msg.getHeader.getSource)
     }
   }
 }
