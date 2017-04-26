@@ -48,24 +48,6 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     case Init(c: OverlayId) => c
   }
 
-  /*def this(init: AppMngrComp.Init) {
-    //this()
-    selfAdr = init.selfAdr
-    logPrefix = "<nid:" + selfAdr.getId + ">"
-    LOG.info("{}initiating...", logPrefix)
-    extPorts = init.extPorts
-    croupierId = init.croupierOId
-    subscribe(handleStart, control)
-    subscribe(handleCroupierConnected, omngrPort)
-  }*/
-
-  /*private[mngr] val handleStart = new Handler[Start]() {
-    def handle(event: Start) {
-      LOG.info("{}starting...", logPrefix)
-      pendingCroupierConnReq = new OMngrCroupier.ConnectRequest(croupierId, false)
-      trigger(pendingCroupierConnReq, omngrPort)
-    }
-  }*/
   ctrl uponEvent {
     case _: Start => handle {
       //logger.info("{}starting...", logPrefix)
@@ -75,14 +57,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
       trigger(pendingCroupierConnReq.get, omngrPort)
     }
   }
-  /*private[mngr] val handleCroupierConnected = new Handler[OMngrCroupier.ConnectResponse]() {
-    def handle(event: OMngrCroupier.ConnectResponse) {
-      LOG.info("{}overlays connected", logPrefix)
-      connectAppComp()
-      trigger(Start.event, appComp.control)
-      trigger(new OverlayViewUpdate.Indication[NoView](croupierId, false, new NoView), extPorts.viewUpdatePort)
-    }
-  }*/
+
   omngrPort uponEvent {
     case event: OMngrCroupier.ConnectResponse => handle {
       logger.info("Overlays connected")
@@ -90,21 +65,28 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
       appComp match {
         case Some(mainApp) =>
           trigger(Start.event -> mainApp.control())
-          trigger(new OverlayViewUpdate.Indication[NoView](croupierId, false, new NoView), ext.viewUpdate)
+          trigger(new OverlayViewUpdate.Indication[NoView](croupierId, false, new NoView), extPorts.viewUpdate)
+        case None =>
+          logger.error("Application component does not exist. Exiting")
+          throw new RuntimeException("Application component is None")
       }
     }
   }
 
-  private def connectAppComp() {
-    appComp = create(classOf[AppComp], new AppComp.Init(selfAdr, croupierId))
-    connect(appComp.getNegative(classOf[Timer]), extPorts.timerPort, Channel.TWO_WAY)
-    connect(appComp.getNegative(classOf[Network]), extPorts.networkPort, Channel.TWO_WAY)
-    connect(appComp.getNegative(classOf[CroupierPort]), extPorts.croupierPort, Channel.TWO_WAY)
+  def connectAppComp() {
+    appComp = Some(create(classOf[AppComp], Init[AppComp](self)))
+
+    appComp match {
+      case Some(a) =>
+        connect(a.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
+        connect(a.getNegative(classOf[Network]), extPorts.network, Channel.TWO_WAY)
+        connect(a.getNegative(classOf[CroupierPort]), extPorts.croupier, Channel.TWO_WAY)
+      case None =>
+        logger.error("AppMngrComp error from connectAppComp ")
+        throw new RuntimeException("Application component is None")
+    }
   }
 
-  class Init(val extPorts: AppMngrComp.ExtPort, val selfAdr: KAddress, val croupierOId: OverlayId) extends se.sics.kompics.Init[AppMngrComp] {
-  }
+  case class ExtPort(timer: Positive[Timer], network: Positive[Network], croupier: Positive[CroupierPort], viewUpdate: Negative[OverlayViewUpdatePort])
 
-  class ExtPort(val timerPort: Positive[Timer], val networkPort: Positive[Network], val croupierPort: Positive[CroupierPort], val viewUpdatePort: Negative[OverlayViewUpdatePort]) {
-  }
 }
