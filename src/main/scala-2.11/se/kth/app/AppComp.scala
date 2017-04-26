@@ -1,57 +1,98 @@
 package se.kth.app
 
-import java.util.List
-import org.slf4j.Logger
+import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
-import se.kth.croupier.util.CroupierHelper
 import se.kth.app.test.Ping
-import se.kth.app.test.Pong
-import se.sics.kompics.ClassMatchedHandler
-import se.sics.kompics.ComponentDefinition
-import se.sics.kompics.Handler
-import se.sics.kompics.Positive
+import se.kth.croupier.util.CroupierHelper
 import se.sics.kompics.Start
-import se.sics.kompics.network.Network
-import se.sics.kompics.network.Transport
+import se.sics.kompics.network.{Network, Transport}
+import se.sics.kompics.sl._
 import se.sics.kompics.timer.Timer
 import se.sics.ktoolbox.croupier.CroupierPort
 import se.sics.ktoolbox.croupier.event.CroupierSample
 import se.sics.ktoolbox.util.identifiable.Identifier
-import se.sics.ktoolbox.util.network.KAddress
-import se.sics.ktoolbox.util.network.KContentMsg
-import se.sics.ktoolbox.util.network.KHeader
-import se.sics.ktoolbox.util.network.basic.BasicContentMsg
-import se.sics.ktoolbox.util.network.basic.BasicHeader
+import se.sics.ktoolbox.util.network.{KAddress, KHeader}
+import se.sics.ktoolbox.util.network.basic.{BasicContentMsg, BasicHeader}
+
+import scala.collection.JavaConversions._
 
 /**
   * Created by reginbald on 25/04/2017.
   */
-class AppComp extends ComponentDefinition{
-  private val LOG = LoggerFactory.getLogger(classOf[AppComp])
-  private var logPrefix = " "
+class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLogging {
+  //private var logPrefix = " "
   //*******************************CONNECTIONS********************************
-  private[app] val timerPort = requires[Timer] //requires(classOf[Nothing])
-  private[app] val networkPort = requires[Network]//requires(classOf[Nothing])
-  private[app] val croupierPort = requires[CroupierPort]//requires(classOf[Nothing])
+  val timerPort = requires[Timer]
+  val networkPort = requires[Network]
+  val croupierPort = requires[CroupierPort]
   //**************************************************************************
-  private var selfAdr = null
 
-  def this(init: AppComp.Init) {
-    this()
-    selfAdr = init.selfAdr
-    logPrefix = "<nid:" + selfAdr.getId + ">"
-    LOG.info("{}initiating...", logPrefix)
-    subscribe(handleStart, control)
-    subscribe(handleCroupierSample, croupierPort)
-    subscribe(handlePing, networkPort)
-    subscribe(handlePong, networkPort)
+  private val self = init match {
+    case Init(s: KAddress) => s
   }
 
-  private[app] val handleStart = new Nothing() {
-    def handle(event: Nothing) {
-      LOG.info("{}starting...", logPrefix)
+ //def this(init: AppComp.Init) {
+ //  this()
+ //  logPrefix = "<nid:" + self.getId + ">"
+ //  logger.info("{}initiating...", logPrefix)
+ //  //subscribe(handleStart, control)
+ //  //subscribe(handleCroupierSample, croupierPort)
+ //  //subscribe(handlePing, networkPort)
+ //  //subscribe(handlePong, networkPort)
+ //}
+
+  ctrl uponEvent {
+    case _: Start => handle {
+      //logger.info("{}starting...", logPrefix) Todo: do we need the prefix?
+      logger.info("Starting...")
     }
   }
+
+  croupierPort uponEvent {
+    case sample:CroupierSample[_] => handle {
+      if(!sample.publicSample.isEmpty()){
+        val samples = sample.publicSample.values().map{ x => x.getSource()}
+        samples.foreach{ peer: KAddress =>
+          val header = new BasicHeader[KAddress](self, peer, Transport.UDP)
+          val msg = new BasicContentMsg[KAddress, KHeader[KAddress], Ping](header, new Ping)
+        }
+      }
+    }
+  }
+
+
+  //Handler handleCroupierSample = new Handler<CroupierSample>() {
+  //  @Override
+  //  public void handle(CroupierSample croupierSample) {
+  //    if (croupierSample.publicSample.isEmpty()) {
+  //      return;
+  //    }
+  //    List<KAddress> sample = CroupierHelper.getSample(croupierSample);
+  //    for (KAddress peer : sample) {
+  //      KHeader header = new BasicHeader(selfAdr, peer, Transport.UDP);
+  //      KContentMsg msg = new BasicContentMsg(header, new Ping());
+  //      trigger(msg, networkPort);
+  //    }
+  //  }
+  //};
+
+  //croupier uponEvent {
+  //  case sample: CroupierSample[_] => handle {
+  //    if (!sample.publicSample.isEmpty) {
+  //      logger.info("Handling croupier sample")
+  //      import scala.collection.JavaConversions._
+  //      val samples = sample.publicSample.values().map { it => it.getSource }
+  //      samples.foreach { peer: KAddress =>
+  //        val header = new BasicHeader[KAddress](self, peer, Transport.UDP)
+  //        val msg = new BasicContentMsg[KAddress, KHeader[KAddress], Ping](header, new Ping)
+  //        trigger(msg -> network)
+  //      }
+  //    } else {
+  //      logger.debug("Empty croupier sample")
+  //    }
+  //  }
+  //}
+
   private[app] val handleCroupierSample = new Nothing() {
     def handle(croupierSample: Nothing) {
       if (croupierSample.publicSample.isEmpty) return
@@ -76,6 +117,7 @@ class AppComp extends ComponentDefinition{
     }
   }
 
-  class Init(val selfAdr: Nothing, val gradientOId: Nothing) extends se.sics.kompics.Init[AppComp] {
+  class Init(val selfAdr: KAddress, val gradientOId: Identifier) extends se.sics.kompics.Init[AppComp] {
+
   }
 }
