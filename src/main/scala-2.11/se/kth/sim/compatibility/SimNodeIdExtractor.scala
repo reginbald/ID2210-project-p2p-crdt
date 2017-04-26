@@ -6,9 +6,6 @@ import se.sics.kompics.simulator.network.identifier.IdentifierExtractor
 import se.sics.ktoolbox.util.identifiable.basic.IntId
 import se.sics.ktoolbox.util.network.KAddress
 
-/**
-  * Created by reginbald on 26/04/2017.
-  */
 class SimNodeIdExtractor extends IdentifierExtractor{
 
   override def extract(adr: Address): Identifier = {
