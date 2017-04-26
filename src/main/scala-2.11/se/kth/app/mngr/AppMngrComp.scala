@@ -23,7 +23,7 @@ class AppMngrComp extends ComponentDefinition with StrictLogging {
   //private val LOG = LoggerFactory.getLogger(classOf[BootstrapClientComp])
   //private var logPrefix = ""
   //*****************************CONNECTIONS**********************************
-  private[mngr] val omngrPort = requires(classOf[OverlayMngrPort])
+  private[mngr] val omngrPort = requires[OverlayMngrPort]//requires(classOf[OverlayMngrPort])
   //***************************EXTERNAL_STATE*********************************
   private var extPorts = null
   private var selfAdr = null
