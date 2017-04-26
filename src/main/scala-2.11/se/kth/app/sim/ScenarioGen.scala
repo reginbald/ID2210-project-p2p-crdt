@@ -1,7 +1,5 @@
 package se.kth.app.sim
 
-import java.util.HashMap
-import java.util.Map
 import se.kth.sim.compatibility.SimNodeIdExtractor
 import se.kth.system.HostMngrComp
 import se.sics.kompics.network.Address
@@ -15,45 +13,46 @@ import se.sics.kompics.simulator.network.identifier.IdentifierExtractor
 import se.sics.ktoolbox.omngr.bootstrap.BootstrapServerComp
 import se.sics.ktoolbox.util.network.KAddress
 
+import scala.collection.mutable
+
 /**
   * Created by reginbald on 26/04/2017.
   */
 class ScenarioGen {
-  private[sim] val systemSetupOp = new Operation[SetupEvent]() {
-    def generate = new SetupEvent() {
-      override def getIdentifierExtractor: IdentifierExtractor = return new SimNodeIdExtractor
+  val systemSetupOp = new Operation[SetupEvent]() {
+    override def generate = new SetupEvent() {
+      override def getIdentifierExtractor: IdentifierExtractor = new SimNodeIdExtractor
     }
   }
-  private[sim] val startBootstrapServerOp = new Operation[StartNodeEvent]() {
-    def generate = new StartNodeEvent() {
-      private[sim] var selfAdr = null
-      def getNodeAddress: Address
-      =
-        return selfAdr
-      def getComponentDefinition: Class[_]
-      =
-        return classOf[BootstrapServerComp]
-      def getComponentInit: BootstrapServerComp.Init
-      =
-        return new BootstrapServerComp.Init(selfAdr)
-    }
-  }
-  private[sim] val startNodeOp = new Operation1[StartNodeEvent, Integer]() {
-    def generate(nodeId: Integer) = new StartNodeEvent() {
-      private[sim] var selfAdr = null
-      def getNodeAddress: Address
-      =
-        return selfAdr
-      def getComponentDefinition: Class[_]
-      =
-        return classOf[HostMngrComp]
-      def getComponentInit: HostMngrComp.Init
-      =
-        return new HostMngrComp.Init(selfAdr, ScenarioSetup.bootstrapServer, ScenarioSetup.croupierOId)
-      override
 
-      def initConfigUpdate: util.Map[String, AnyRef] = {
-        val nodeConfig = new util.HashMap[String, AnyRef]
+  val startBootstrapServerOp = new Operation[StartNodeEvent]() {
+    override def generate = new StartNodeEvent() {
+      val selfAdr: KAddress = ScenarioSetup.bootstrapServer
+
+      override def getNodeAddress: Address = selfAdr
+
+      override def getComponentDefinition: Class[_] = classOf[BootstrapServerComp]
+
+      override def getComponentInit: BootstrapServerComp.Init = new BootstrapServerComp.Init(selfAdr)
+    }
+  }
+
+  val startNodeOp = new Operation1[StartNodeEvent, Integer]() {
+    override def generate(nodeId: Integer) : StartNodeEvent = new StartNodeEvent() {
+      val selfAdr: KAddress = ScenarioSetup.getNodeAdr("193.0.0." + nodeId, nodeId)
+
+      override def getNodeAddress: Address = selfAdr
+
+      override def getComponentDefinition: Class[_] = classOf[HostMngrComp]
+
+      override def getComponentInit: HostMngrComp.Init = new HostMngrComp.Init(
+        selfAdr,
+        ScenarioSetup.bootstrapServer,
+        ScenarioSetup.croupierOId
+      )
+
+      override def initConfigUpdate: mutable.HashMap[String, AnyRef] = {
+        val nodeConfig = new mutable.HashMap[String, AnyRef]
         nodeConfig.put("system.id", nodeId)
         nodeConfig.put("system.seed", ScenarioSetup.getNodeSeed(nodeId))
         nodeConfig.put("system.port", ScenarioSetup.appPort)
@@ -63,7 +62,33 @@ class ScenarioGen {
   }
 
   def simpleBoot: SimulationScenario = {
-    val scen: SimulationScenario = new SimulationScenario() {}
-    return scen
+    val scen: SimulationScenario = new SimulationScenario() {
+      val systemSetup = new StochasticProcess() {
+        {
+          eventInterArrivalTime(constant(1000))
+          raise(1, systemSetupOp)
+        }
+      }
+
+      val startBootstrapServer = new StochasticProcess() {
+        {
+          eventInterArrivalTime(constant(1000))
+          raise(1, startBootstrapServerOp)
+        }
+      }
+
+      val startPeers = new StochasticProcess() {
+        {
+          eventInterArrivalTime(uniform(1000, 1100))
+          raise(100, startNodeOp, new BasicIntSequentialDistribution(1))
+        }
+      }
+
+      systemSetup.start()
+      startBootstrapServer.startAfterTerminationOf(1000, systemSetup)
+      startPeers.startAfterTerminationOf(1000, startBootstrapServer)
+      terminateAfterTerminationOf(1000*1000, startPeers)
+    }
+    scen
   }
 }

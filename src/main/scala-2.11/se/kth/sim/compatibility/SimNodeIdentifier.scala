@@ -5,13 +5,7 @@ import se.sics.kompics.simulator.network.identifier.Identifier
 /**
   * Created by reginbald on 26/04/2017.
   */
-class SimNodeIdentifier extends Identifier{
-  var nodeId = 0
-
-  def this(nodeId: Int) {
-    this()
-    this.nodeId = nodeId
-  }
+class SimNodeIdentifier(val nodeId: Int) extends Identifier{
 
   def partition(nrPartitions: Int): Int = nodeId % nrPartitions
 
