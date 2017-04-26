@@ -12,6 +12,7 @@ import se.sics.ktoolbox.croupier.CroupierPort
 import se.sics.ktoolbox.omngr.bootstrap.BootstrapClientComp
 import se.sics.ktoolbox.overlaymngr.OverlayMngrPort
 import se.sics.ktoolbox.overlaymngr.events.OMngrCroupier
+import se.sics.ktoolbox.overlaymngr.events.OMngrCroupier.ConnectRequest
 import se.sics.ktoolbox.util.identifiable.overlay.OverlayId
 import se.sics.ktoolbox.util.network.KAddress
 import se.sics.ktoolbox.util.overlays.view.{OverlayViewUpdate, OverlayViewUpdatePort}
@@ -19,21 +20,26 @@ import se.sics.ktoolbox.util.overlays.view.{OverlayViewUpdate, OverlayViewUpdate
 /**
   * Created by reginbald on 26/04/2017.
   */
-class AppMngrComp extends ComponentDefinition with StrictLogging {
+class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with StrictLogging {
   //private val LOG = LoggerFactory.getLogger(classOf[BootstrapClientComp])
   //private var logPrefix = ""
   //*****************************CONNECTIONS**********************************
   private[mngr] val omngrPort = requires[OverlayMngrPort]//requires(classOf[OverlayMngrPort])
   //***************************EXTERNAL_STATE*********************************
   private var extPorts = null
-  private var selfAdr = null
+  //private var selfAdr = null
   private var croupierId = null
   //***************************INTERNAL_STATE*********************************
   private var appComp = null
   //******************************AUX_STATE***********************************
-  private var pendingCroupierConnReq = null
+  private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
   //**************************************************************************
-  def this(init: AppMngrComp.Init) {
+
+  private val self = init match {
+    case Init(s: KAddress) => s
+  }
+
+  /*def this(init: AppMngrComp.Init) {
     //this()
     selfAdr = init.selfAdr
     logPrefix = "<nid:" + selfAdr.getId + ">"
@@ -42,13 +48,22 @@ class AppMngrComp extends ComponentDefinition with StrictLogging {
     croupierId = init.croupierOId
     subscribe(handleStart, control)
     subscribe(handleCroupierConnected, omngrPort)
-  }
+  }*/
 
-  private[mngr] val handleStart = new Handler[Start]() {
+  /*private[mngr] val handleStart = new Handler[Start]() {
     def handle(event: Start) {
       LOG.info("{}starting...", logPrefix)
       pendingCroupierConnReq = new OMngrCroupier.ConnectRequest(croupierId, false)
       trigger(pendingCroupierConnReq, omngrPort)
+    }
+  }*/
+  ctrl uponEvent {
+    case _: Start => handle {
+      //logger.info("{}starting...", logPrefix)
+      logger.info("Starting...")
+      pendingCroupierConnReq = Some(new OMngrCroupier.ConnectRequest(croupierId,false))
+      //new OMngrCroupier.ConnectRequest(croupierId, false)
+      trigger(pendingCroupierConnReq.get, omngrPort)
     }
   }
   private[mngr] val handleCroupierConnected = new Handler[OMngrCroupier.ConnectResponse]() {
