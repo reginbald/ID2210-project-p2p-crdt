@@ -54,7 +54,7 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
   networkPort uponEvent {
     case msg:BasicContentMsg[_, _, Ping] => handle {
       logger.info("Received ping from: " + msg.getHeader.getSource)
-      trigger(msg.answer(Pong()), networkPort)
+      trigger(msg.answer(new Pong), networkPort)
     }
     case msg:BasicContentMsg[_, _, Pong] => handle {
       logger.info("Received pong from: " + msg.getHeader.getSource)
