@@ -45,76 +45,76 @@ import se.sics.ktoolbox.util.network.basic.BasicHeader;
  */
 public class AppComp extends ComponentDefinition {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AppComp.class);
-  private String logPrefix = " ";
+    private static final Logger LOG = LoggerFactory.getLogger(AppComp.class);
+    private String logPrefix = " ";
 
-  //*******************************CONNECTIONS********************************
-  Positive<Timer> timerPort = requires(Timer.class);
-  Positive<Network> networkPort = requires(Network.class);
-  Positive<CroupierPort> croupierPort = requires(CroupierPort.class);
-  //**************************************************************************
-  private KAddress selfAdr;
+    //*******************************CONNECTIONS********************************
+    Positive<Timer> timerPort = requires(Timer.class);
+    Positive<Network> networkPort = requires(Network.class);
+    Positive<CroupierPort> croupierPort = requires(CroupierPort.class);
+    //**************************************************************************
+    private KAddress selfAdr;
 
-  public AppComp(Init init) {
-    selfAdr = init.selfAdr;
-    logPrefix = "<nid:" + selfAdr.getId() + ">";
-    LOG.info("{}initiating...", logPrefix);
+    public AppComp(Init init) {
+        selfAdr = init.selfAdr;
+        logPrefix = "<nid:" + selfAdr.getId() + ">";
+        LOG.info("{}initiating...", logPrefix);
 
-    subscribe(handleStart, control);
-    subscribe(handleCroupierSample, croupierPort);
-    subscribe(handlePing, networkPort);
-    subscribe(handlePong, networkPort);
-  }
-
-  Handler handleStart = new Handler<Start>() {
-    @Override
-    public void handle(Start event) {
-      LOG.info("{}starting...", logPrefix);
+        subscribe(handleStart, control);
+        subscribe(handleCroupierSample, croupierPort);
+        subscribe(handlePing, networkPort);
+        subscribe(handlePong, networkPort);
     }
-  };
 
-  Handler handleCroupierSample = new Handler<CroupierSample>() {
-    @Override
-    public void handle(CroupierSample croupierSample) {
-      if (croupierSample.publicSample.isEmpty()) {
-        return;
-      }
-      List<KAddress> sample = CroupierHelper.getSample(croupierSample);
-      for (KAddress peer : sample) {
-        KHeader header = new BasicHeader(selfAdr, peer, Transport.UDP);
-        KContentMsg msg = new BasicContentMsg(header, new Ping());
-        trigger(msg, networkPort);
-      }
-    }
-  };
-
-  ClassMatchedHandler handlePing
-    = new ClassMatchedHandler<Ping, KContentMsg<?, ?, Ping>>() {
-
-      @Override
-      public void handle(Ping content, KContentMsg<?, ?, Ping> container) {
-        LOG.info("{}received ping from:{}", logPrefix, container.getHeader().getSource());
-        trigger(container.answer(new Pong()), networkPort);
-      }
+    Handler handleStart = new Handler<Start>() {
+        @Override
+        public void handle(Start event) {
+            LOG.info("{}starting...", logPrefix);
+        }
     };
 
-  ClassMatchedHandler handlePong
-    = new ClassMatchedHandler<Pong, KContentMsg<?, KHeader<?>, Pong>>() {
-
-      @Override
-      public void handle(Pong content, KContentMsg<?, KHeader<?>, Pong> container) {
-        LOG.info("{}received pong from:{}", logPrefix, container.getHeader().getSource());
-      }
+    Handler handleCroupierSample = new Handler<CroupierSample>() {
+        @Override
+        public void handle(CroupierSample croupierSample) {
+            if (croupierSample.publicSample.isEmpty()) {
+                return;
+            }
+            List<KAddress> sample = CroupierHelper.getSample(croupierSample);
+            for (KAddress peer : sample) {
+                KHeader header = new BasicHeader(selfAdr, peer, Transport.UDP);
+                KContentMsg msg = new BasicContentMsg(header, new Ping());
+                trigger(msg, networkPort);
+            }
+        }
     };
 
-  public static class Init extends se.sics.kompics.Init<AppComp> {
+    ClassMatchedHandler handlePing
+            = new ClassMatchedHandler<Ping, KContentMsg<?, ?, Ping>>() {
 
-    public final KAddress selfAdr;
-    public final Identifier gradientOId;
+        @Override
+        public void handle(Ping content, KContentMsg<?, ?, Ping> container) {
+            LOG.info("{}received ping from:{}", logPrefix, container.getHeader().getSource());
+            trigger(container.answer(new Pong()), networkPort);
+        }
+    };
 
-    public Init(KAddress selfAdr, Identifier gradientOId) {
-      this.selfAdr = selfAdr;
-      this.gradientOId = gradientOId;
+    ClassMatchedHandler handlePong
+            = new ClassMatchedHandler<Pong, KContentMsg<?, KHeader<?>, Pong>>() {
+
+        @Override
+        public void handle(Pong content, KContentMsg<?, KHeader<?>, Pong> container) {
+            LOG.info("{}received pong from:{}", logPrefix, container.getHeader().getSource());
+        }
+    };
+
+    public static class Init extends se.sics.kompics.Init<AppComp> {
+
+        public final KAddress selfAdr;
+        public final Identifier gradientOId;
+
+        public Init(KAddress selfAdr, Identifier gradientOId) {
+            this.selfAdr = selfAdr;
+            this.gradientOId = gradientOId;
+        }
     }
-  }
 }

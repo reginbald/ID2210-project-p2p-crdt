@@ -16,7 +16,12 @@
       <sourceFolder url="file://$MODULE_DIR$/../../target/scala-2.11/resource_managed/main" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../target/scala-2.11/resource_managed/test" type="java-test-resource" />
-      <excludeFolder url="file://$MODULE_DIR$/../../src/main/java" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../../src/main/scala-2.11/se/kth" />
+      <excludeFolder url="file://$MODULE_DIR$/../../src/main/scala-2.11/se/kth/app/mngr" />
+      <excludeFolder url="file://$MODULE_DIR$/../../src/main/scala-2.11/se/kth/app/sim" />
+      <excludeFolder url="file://$MODULE_DIR$/../../src/main/scala-2.11/se/kth/croupier/util" />
+      <excludeFolder url="file://$MODULE_DIR$/../../src/main/scala-2.11/se/kth/system" />
       <excludeFolder url="file://$MODULE_DIR$/../../target" />
     </content>
     <orderEntry type="inheritedJdk" />

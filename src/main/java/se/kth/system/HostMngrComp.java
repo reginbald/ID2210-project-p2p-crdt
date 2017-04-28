@@ -67,19 +67,16 @@ public class HostMngrComp extends ComponentDefinition {
         croupierId = init.croupierId;
 
         subscribe(handleStart, control);
+
+        connectBootstrapClient();
+        connectOverlayMngr();
+        connectApp();
     }
 
     Handler handleStart = new Handler<Start>() {
         @Override
         public void handle(Start event) {
             LOG.info("{}starting...", logPrefix);
-            connectBootstrapClient();
-            connectOverlayMngr();
-            connectApp();
-
-            trigger(Start.event, bootstrapClientComp.control());
-            trigger(Start.event, overlayMngrComp.control());
-            trigger(Start.event, appMngrComp.control());
         }
     };
 
@@ -99,7 +96,8 @@ public class HostMngrComp extends ComponentDefinition {
         AppMngrComp.ExtPort extPorts = new AppMngrComp.ExtPort(timerPort, networkPort,
                 overlayMngrComp.getPositive(CroupierPort.class), overlayMngrComp.getNegative(OverlayViewUpdatePort.class));
         appMngrComp = create(AppMngrComp.class, new AppMngrComp.Init(extPorts, selfAdr, croupierId));
-        connect(appMngrComp.getNegative(OverlayMngrPort.class), overlayMngrComp.getPositive(OverlayMngrPort.class), Channel.TWO_WAY);
+        connect(appMngrComp.getNegative(OverlayMngrPort.class), overlayMngrComp.getPositive(OverlayMngrPort.class),
+                Channel.TWO_WAY);
     }
 
     public static class Init extends se.sics.kompics.Init<HostMngrComp> {

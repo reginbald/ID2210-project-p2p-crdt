@@ -43,7 +43,7 @@ public class ScenarioSetup {
     Identifier bootstrapId = BasicIdentifiers.nodeId(new BasicBuilders.IntBuilder(0));
     try {
       bootstrapServer = NatAwareAddressImpl.open(new BasicAddress(InetAddress.getByName("193.0.0.1"), appPort,
-        bootstrapId));
+              bootstrapId));
     } catch (UnknownHostException ex) {
       throw new RuntimeException(ex);
     }

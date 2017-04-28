@@ -118,7 +118,7 @@ public class AppMngrComp extends ComponentDefinition {
     public final Negative<OverlayViewUpdatePort> viewUpdatePort;
 
     public ExtPort(Positive<Timer> timerPort, Positive<Network> networkPort, Positive<CroupierPort> croupierPort,
-      Negative<OverlayViewUpdatePort> viewUpdatePort) {
+                   Negative<OverlayViewUpdatePort> viewUpdatePort) {
       this.networkPort = networkPort;
       this.timerPort = timerPort;
       this.croupierPort = croupierPort;
