@@ -1,4 +1,4 @@
-package se.kth.app.broadcast
+package se.kth.app.ports
 
 import se.kth.app.events.{RB_Broadcast, RB_Deliver}
 import se.sics.kompics.sl.Port
