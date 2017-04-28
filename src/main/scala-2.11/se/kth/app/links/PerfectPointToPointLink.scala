@@ -16,9 +16,7 @@ class PerfectPointToPointLink(init: Init[PerfectPointToPointLink]) extends Compo
   val pLink = provides[PerfectLink]
   val net = requires[Network]
 
-  val self: KAddress = init match {
-    case Init(self:KAddress) => self
-  }
+  val self: KAddress = init match { case Init(self:KAddress) => self }
 
   pLink uponEvent {
     case PL_Send(dest:KAddress, payload:KompicsEvent) => handle {
