@@ -21,6 +21,7 @@ class EagerReliableBroadcast(init: Init[EagerReliableBroadcast]) extends Compone
   };
 
   /* EagerReliableBroadcast Event Handlers */
+
   /*rb uponEvent {
     case RB_Broadcast(payload) => handle {
       /**/
