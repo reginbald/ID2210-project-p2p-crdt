@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: se.sics.kompics.simulator:core:0.9.4-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/se/sics/kompics/simulator/core/0.9.4-SNAPSHOT/core-0.9.4-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

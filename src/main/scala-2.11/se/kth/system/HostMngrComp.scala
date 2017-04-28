@@ -3,8 +3,7 @@ package se.kth.system
 import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import se.kth.app.AppComp
-import se.kth.app.mngr.AppMngrComp
+import se.kth.app.mngr.{AppMngrComp, ExtPort}
 import se.sics.kompics.{Channel, Component, Positive, Start}
 import se.sics.kompics.sl._
 import se.sics.kompics.network.Network
@@ -29,65 +28,39 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with St
   private val timerPort: Positive[Timer] = requires[Timer]
   private val networkPort: Positive[Network] = requires[Network]
   //***************************EXTERNAL_STATE*********************************
-  /*private var selfAdr: KAddress = null
-  private var bootstrapServer: KAddress = null
-  private var croupierId: OverlayId = null*/
   private val (selfAdr, bootstrapServer, croupierId) = init match {
     case Init(selfAdr: KAddress, bootstrapServer: KAddress, croupierId: OverlayId) => (selfAdr, bootstrapServer, croupierId)
   }
   //***************************INTERNAL_STATE*********************************
-  private var bootstrapClientComp: Component = null
-  private var overlayMngrComp: Component = null
-  private var appMngrComp: Component = null
+  private var bootstrapClientComp = None: Option[Component]
+  private var overlayMngrComp = None: Option[Component]
+  private var appMngrComp = None: Option[Component]
 
-  //def this(init: HostMngrComp.Init) {
-  //  this()
-  //  selfAdr = init.selfAdr
-  //  logPrefix = "<nid:" + selfAdr.getId + ">"
-  //  LOG.info("{}initiating...", logPrefix)
-  //  bootstrapServer = init.bootstrapServer
-  //  croupierId = init.croupierId
-  //  subscribe(handleStart, control)
-  //}
+  connectBootstrapClient()
+  connectOverlayMngr()
+  connectApp()
 
-  /*private[system] val handleStart: Handler[_ <: KompicsEvent] = new Handler[Start]() {
-    def handle(event: Start) {
-      LOG.info("{}starting...", logPrefix)
-      connectBootstrapClient()
-      connectOverlayMngr()
-      connectApp()
-      trigger(Start.event, bootstrapClientComp.control)
-      trigger(Start.event, overlayMngrComp.control)
-      trigger(Start.event, appMngrComp.control)
-    }
-  }*/
   ctrl uponEvent {
     case _: Start => handle {
       logger.info("HostMngrComp starting ...")
-      connectBootstrapClient()
-      connectOverlayMngr()
-      connectApp()
-      trigger(Start.event, bootstrapClientComp.control())
-      trigger(Start.event, overlayMngrComp.control())
-      trigger(Start.event, appMngrComp.control())
     }
   }
 
   private def connectBootstrapClient() {
-    bootstrapClientComp = create(classOf[BootstrapClientComp], new BootstrapClientComp.Init(selfAdr, bootstrapServer))
-    connect(bootstrapClientComp.getNegative(classOf[Timer]), timerPort, Channel.TWO_WAY)
-    connect(bootstrapClientComp.getNegative(classOf[Network]), networkPort, Channel.TWO_WAY)
+    bootstrapClientComp = Some(create(classOf[BootstrapClientComp], new BootstrapClientComp.Init(selfAdr, bootstrapServer)))
+    connect(bootstrapClientComp.get.getNegative(classOf[Timer]), timerPort, Channel.TWO_WAY)
+    connect(bootstrapClientComp.get.getNegative(classOf[Network]), networkPort, Channel.TWO_WAY)
   }
 
   private def connectOverlayMngr() {
-    val extPorts: OverlayMngrComp.ExtPort = new OverlayMngrComp.ExtPort(timerPort, networkPort, bootstrapClientComp.getPositive(classOf[CCHeartbeatPort]))
-    overlayMngrComp = create(classOf[OverlayMngrComp], new OverlayMngrComp.Init(selfAdr.asInstanceOf[NatAwareAddress], extPorts))
+    val extPorts: OverlayMngrComp.ExtPort = new OverlayMngrComp.ExtPort(timerPort, networkPort, bootstrapClientComp.get.getPositive(classOf[CCHeartbeatPort]))
+    overlayMngrComp = Some(create(classOf[OverlayMngrComp], new OverlayMngrComp.Init(selfAdr.asInstanceOf[NatAwareAddress], extPorts)))
   }
 
   private def connectApp() {
-    val extPorts: AppMngrComp.ExtPort = new AppMngrComp.ExtPort(timerPort, networkPort, overlayMngrComp.getPositive(classOf[CroupierPort]), overlayMngrComp.getNegative(classOf[OverlayViewUpdatePort]))
-    appMngrComp = create(classOf[AppMngrComp], Init[AppMngrComp](extPorts, selfAdr, croupierId))
-    connect(appMngrComp.getNegative(classOf[OverlayMngrPort]), overlayMngrComp.getPositive(classOf[OverlayMngrPort]), Channel.TWO_WAY)
+    val extPorts: ExtPort = new ExtPort(timerPort, networkPort, overlayMngrComp.get.getPositive(classOf[CroupierPort]), overlayMngrComp.get.getNegative(classOf[OverlayViewUpdatePort]))
+    appMngrComp = Some(create(classOf[AppMngrComp], Init[AppMngrComp](extPorts, selfAdr, croupierId)))
+    connect(appMngrComp.get.getNegative(classOf[OverlayMngrPort]), overlayMngrComp.get.getPositive(classOf[OverlayMngrPort]), Channel.TWO_WAY)
   }
 }
 

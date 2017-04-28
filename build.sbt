@@ -7,6 +7,7 @@ version := "1.0"
 scalaVersion := "2.11.11"
 
 val kompicsVersion = "0.9.2-SNAPSHOT"
+val kompicsNewVersion = "0.9.4-SNAPSHOT"
 val ktoolboxVersion = "2.0.2-SNAPSHOT"
 
 resolvers ++= Seq(
@@ -20,7 +21,7 @@ libraryDependencies ++= Seq(
   "se.sics.kompics" %% "kompics-scala" % kompicsVersion,
   "se.sics.kompics.basic" % "kompics-component-netty-network" % kompicsVersion,
   "se.sics.kompics.basic" % "kompics-component-java-timer" % kompicsVersion,
-  "se.sics.kompics.simulator" % "core" % kompicsVersion,
+  "se.sics.kompics.simulator" % "core" % kompicsNewVersion,
 
   // K-Toolbox
   "se.sics.ktoolbox.overlaymngr" % "core" % ktoolboxVersion,

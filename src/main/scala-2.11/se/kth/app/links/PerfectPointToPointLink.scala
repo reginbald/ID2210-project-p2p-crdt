@@ -6,7 +6,7 @@ import se.kth.app.ports.PerfectLink
 import se.sics.kompics.KompicsEvent
 import se.sics.kompics.network.{Network, Transport}
 import se.sics.kompics.sl._
-import se.sics.ktoolbox.util.network.{KAddress}
+import se.sics.ktoolbox.util.network.{KAddress, KHeader}
 import se.sics.ktoolbox.util.network.basic.{BasicContentMsg, BasicHeader}
 
 /**
@@ -22,8 +22,8 @@ class PerfectPointToPointLink(init: Init[PerfectPointToPointLink]) extends Compo
 
   pLink uponEvent {
     case PL_Send(dest:KAddress, payload:KompicsEvent) => handle {
-      val header = new BasicHeader(self, dest, Transport.TCP)
-      val message = new BasicContentMsg(header, PL_Deliver(self, payload))
+      val header = new BasicHeader[KAddress](self, dest, Transport.TCP)
+      val message = new BasicContentMsg[KAddress, KHeader[KAddress], KompicsEvent](header, PL_Deliver(self, payload))
       trigger(message -> net)
     }
   }
