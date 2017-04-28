@@ -1,5 +1,6 @@
 package se.kth.app.ports
 
+import se.kth.app.events.{BEB_Broadcast, BEB_Deliver}
 import se.sics.kompics.sl._
 
 /**
