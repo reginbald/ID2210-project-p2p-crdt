@@ -6,8 +6,8 @@ import se.kth.app.broadcast.GossipingBestEffortBroadcastComponent
 import se.kth.app.links.PerfectPointToPointLink
 import se.kth.app.ports.{GossipingBestEffortBroadcast, PerfectLink}
 import se.kth.croupier.util.NoView
+import se.sics.kompics.{Channel, Negative, Positive, Start}
 import se.sics.kompics.network.Network
-import se.sics.kompics.{ComponentDefinition => _, Init => _, _}
 import se.sics.kompics.sl._
 import se.sics.kompics.timer.Timer
 import se.sics.ktoolbox.croupier.CroupierPort
@@ -47,9 +47,9 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   omngrPort uponEvent {
     case event: OMngrCroupier.ConnectResponse => handle {
       logger.info("Overlays connected")
-      connectAppComp()
       connectPerfectLinkComp()
       connectGossipBEBComp()
+      connectAppComp()
 
       trigger(new OverlayViewUpdate.Indication[NoView](croupierId, false, new NoView), extPorts.viewUpdate)
     }
@@ -58,7 +58,9 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   private def connectAppComp() {
     logger.info("Connecting App Component")
     connect(appComp.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
-    connect(appComp.getNegative(classOf[Network]), extPorts.network, Channel.TWO_WAY)
+    connect(perfectLinkComp.getPositive(classOf[PerfectLink]), appComp.getNegative(classOf[PerfectLink]), Channel.TWO_WAY)
+    connect(gossipBEBComp.getPositive(classOf[GossipingBestEffortBroadcast]), appComp.getNegative(classOf[GossipingBestEffortBroadcast]), Channel.TWO_WAY)
+    //connect(appComp.getNegative(classOf[Network]), extPorts.network, Channel.TWO_WAY)
     connect(appComp.getNegative(classOf[CroupierPort]), extPorts.croupier, Channel.TWO_WAY)
 
   }

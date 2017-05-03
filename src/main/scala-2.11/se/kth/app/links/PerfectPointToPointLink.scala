@@ -13,8 +13,8 @@ import se.sics.ktoolbox.util.network.basic.{BasicContentMsg, BasicHeader}
   * Created by reginbald on 27/04/2017.
   */
 class PerfectPointToPointLink(init: Init[PerfectPointToPointLink]) extends ComponentDefinition with StrictLogging {
-  val pLink = provides[PerfectLink]
-  val net = requires[Network]
+  val pLink: NegativePort[PerfectLink] = provides[PerfectLink]
+  val net: PositivePort[Network] = requires[Network]
 
   val self: KAddress = init match { case Init(self:KAddress) => self }
 
@@ -27,8 +27,13 @@ class PerfectPointToPointLink(init: Init[PerfectPointToPointLink]) extends Compo
   }
 
   net uponEvent {
-    case msg:BasicContentMsg[_,_,PL_Deliver] => handle{
-      trigger(msg.getContent -> pLink)
+    case msg:BasicContentMsg[_,_,_] => handle{
+      val content = msg.getContent
+      content match {
+        case plDeliver: PL_Deliver =>
+          trigger(plDeliver -> pLink)
+        case _ =>
+      }
     }
   }
 }
