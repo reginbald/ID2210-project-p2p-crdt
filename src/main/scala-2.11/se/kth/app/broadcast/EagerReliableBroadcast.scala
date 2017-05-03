@@ -1,7 +1,7 @@
 package se.kth.app.broadcast
 
 import com.typesafe.scalalogging.StrictLogging
-import se.kth.app.events.{GBEB_Broadcast, RB_Broadcast}
+import se.kth.app.events.{GBEB_Broadcast, GBEB_Deliver, RB_Broadcast, RB_Deliver}
 import se.kth.app.ports.{GossipingBestEffortBroadcast, ReliableBroadcast}
 import se.sics.kompics.KompicsEvent
 import se.sics.kompics.network.Address
@@ -26,6 +26,16 @@ class EagerReliableBroadcast(init: Init[EagerReliableBroadcast]) extends Compone
     case RB_Broadcast(payload) => handle {
       /**/
       trigger(GBEB_Broadcast(new Data(self,payload)) -> gbeb)
+    }
+  }
+
+  gbeb uponEvent{
+    case m:GBEB_Deliver => handle {
+      if(!delivered.contains(m)) {
+        delivered += m
+        trigger(new RB_Deliver(m.source, m) -> rb)
+        trigger(GBEB_Broadcast(new Data(m.source,m)) -> gbeb)
+      }
     }
   }
 }
