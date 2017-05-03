@@ -1,9 +1,8 @@
 package se.kth.system
 
 import com.typesafe.scalalogging.StrictLogging
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import se.kth.app.mngr.{AppMngrComp, ExtPort}
+import se.kth.app.ports.PerfectLink
 import se.sics.kompics.{Channel, Component, Positive, Start}
 import se.sics.kompics.sl._
 import se.sics.kompics.network.Network
@@ -22,8 +21,6 @@ import se.sics.ktoolbox.util.overlays.view.OverlayViewUpdatePort
   * Created by reginbald on 26/04/2017.
   */
 class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with StrictLogging {
-  private val LOG: Logger = LoggerFactory.getLogger(classOf[HostMngrComp])
-  private var logPrefix: String = " "
   //*****************************CONNECTIONS**********************************
   private val timerPort: Positive[Timer] = requires[Timer]
   private val networkPort: Positive[Network] = requires[Network]

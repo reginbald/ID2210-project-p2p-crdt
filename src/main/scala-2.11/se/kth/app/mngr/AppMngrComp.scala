@@ -2,6 +2,9 @@ package se.kth.app.mngr
 
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.AppComp
+import se.kth.app.broadcast.GossipingBestEffortBroadcastComponent
+import se.kth.app.links.PerfectPointToPointLink
+import se.kth.app.ports.{GossipingBestEffortBroadcast, PerfectLink}
 import se.kth.croupier.util.NoView
 import se.sics.kompics.network.Network
 import se.sics.kompics.{ComponentDefinition => _, Init => _, _}
@@ -18,35 +21,25 @@ import se.sics.ktoolbox.util.overlays.view.{OverlayViewUpdate, OverlayViewUpdate
   * Created by reginbald on 26/04/2017.
   */
 class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with StrictLogging {
-  //private val LOG = LoggerFactory.getLogger(classOf[BootstrapClientComp])
-  //private var logPrefix = ""
   //*****************************CONNECTIONS**********************************
-  //private[mngr] val omngrPort = requires[OverlayMngrPort]//requires(classOf[OverlayMngrPort])
   private val omngrPort = requires[OverlayMngrPort]
   //***************************EXTERNAL_STATE*********************************
   private val (extPorts, self, croupierId) = init match {
     case Init(extPorts: ExtPort, self: KAddress, croupierId: OverlayId) => (extPorts, self, croupierId)
   }
-
-  //private val self = init match {
-  //  case Init(s: KAddress) => s
-  //}
-//
-  //private val croupierId = init match {
-  //  case Init(c: OverlayId) => c
-  //}
   //***************************INTERNAL_STATE*********************************
-  private var appComp = None: Option[Component]
+  private val appComp = create(classOf[AppComp], Init[AppComp](self))
+  private val perfectLinkComp = create(classOf[PerfectPointToPointLink], Init[PerfectPointToPointLink](self))
+  private val gossipBEBComp = create(classOf[GossipingBestEffortBroadcastComponent], Init[GossipingBestEffortBroadcastComponent](self))
+
   //******************************AUX_STATE***********************************
   private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
   //**************************************************************************
 
   ctrl uponEvent {
     case _: Start => handle {
-      //logger.info("{}starting...", logPrefix)
       logger.info("Starting...")
       pendingCroupierConnReq = Some(new OMngrCroupier.ConnectRequest(croupierId,false))
-      //new OMngrCroupier.ConnectRequest(croupierId, false)
       trigger(pendingCroupierConnReq.get, omngrPort)
     }
   }
@@ -55,29 +48,30 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     case event: OMngrCroupier.ConnectResponse => handle {
       logger.info("Overlays connected")
       connectAppComp()
-      appComp match {
-        case Some(mainApp) =>
-          trigger(Start.event -> mainApp.control())
-          trigger(new OverlayViewUpdate.Indication[NoView](croupierId, false, new NoView), extPorts.viewUpdate)
-        case None =>
-          logger.error("Application component does not exist. Exiting")
-          throw new RuntimeException("Application component is None")
-      }
+      connectPerfectLinkComp()
+      connectGossipBEBComp()
+
+      trigger(new OverlayViewUpdate.Indication[NoView](croupierId, false, new NoView), extPorts.viewUpdate)
     }
   }
 
   private def connectAppComp() {
-    appComp = Some(create(classOf[AppComp], Init[AppComp](self)))
+    logger.info("Connecting App Component")
+    connect(appComp.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
+    connect(appComp.getNegative(classOf[Network]), extPorts.network, Channel.TWO_WAY)
+    connect(appComp.getNegative(classOf[CroupierPort]), extPorts.croupier, Channel.TWO_WAY)
 
-    appComp match {
-      case Some(a) =>
-        connect(a.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
-        connect(a.getNegative(classOf[Network]), extPorts.network, Channel.TWO_WAY)
-        connect(a.getNegative(classOf[CroupierPort]), extPorts.croupier, Channel.TWO_WAY)
-      case None =>
-        logger.error("AppMngrComp error from connectAppComp ")
-        throw new RuntimeException("Application component is None")
-    }
+  }
+
+  private def connectPerfectLinkComp(){
+    logger.info("Connecting Perfect Link Component")
+    connect(perfectLinkComp.getNegative(classOf[Network]), extPorts.network, Channel.TWO_WAY)
+  }
+
+  private def connectGossipBEBComp(){
+    logger.info("Connecting Gossip BEB Component")
+    connect(gossipBEBComp.getNegative(classOf[CroupierPort]), extPorts.croupier, Channel.TWO_WAY)
+    connect(perfectLinkComp.getPositive(classOf[PerfectLink]), gossipBEBComp.getNegative(classOf[PerfectLink]), Channel.TWO_WAY)
   }
 }
 

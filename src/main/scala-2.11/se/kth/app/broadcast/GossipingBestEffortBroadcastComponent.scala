@@ -5,8 +5,12 @@ import se.kth.app.events.{HistoryRequest, _}
 import se.kth.app.ports.{BasicSample, GossipingBestEffortBroadcast, PerfectLink}
 import se.sics.kompics.{KompicsEvent, Start}
 import se.sics.kompics.sl._
+import se.sics.ktoolbox.croupier.CroupierPort
+import se.sics.ktoolbox.croupier.event.CroupierSample
 import se.sics.ktoolbox.util.network.KAddress
+import se.sics.ktoolbox.util.other.AgingAdrContainer
 
+import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -15,9 +19,10 @@ import scala.collection.mutable.ListBuffer
 class GossipingBestEffortBroadcastComponent(init: Init[GossipingBestEffortBroadcastComponent]) extends ComponentDefinition with StrictLogging{
   val gbeb = provides[GossipingBestEffortBroadcast]
   val pLink = requires[PerfectLink]
-  val bs = requires[BasicSample]
+  val croupier = requires[CroupierPort]
 
-  var (self, past) = init match {case Init(self:KAddress, list: ListBuffer[(KAddress, KompicsEvent)]) => (self, list)}
+  var self = init match {case Init(self:KAddress) => self}
+  var past = new ListBuffer[(KAddress, KompicsEvent)]
 
   ctrl uponEvent {
     case _: Start => handle {
@@ -31,9 +36,10 @@ class GossipingBestEffortBroadcastComponent(init: Init[GossipingBestEffortBroadc
     }
   }
 
-  bs uponEvent {
-    case  s:Sample => handle {
-      for (p <- s.sample) trigger(new PL_Send(p, new HistoryRequest) -> pLink)
+  croupier uponEvent {
+    case  sample:CroupierSample[_] => handle {
+      logger.info("Croupier sample received")
+      for (p <- sample.publicSample.values().map{ x => x.getSource}) trigger(new PL_Send(p, new HistoryRequest) -> pLink)
     }
   }
 
