@@ -30,11 +30,11 @@ class EagerReliableBroadcast(init: Init[EagerReliableBroadcast]) extends Compone
   }
 
   gbeb uponEvent{
-    case m:GBEB_Deliver => handle {
+    case GBEB_Deliver(_, Data(src, m)) => handle {
       if(!delivered.contains(m)) {
         delivered += m
-        trigger(new RB_Deliver(m.source, m) -> rb)
-        trigger(GBEB_Broadcast(new Data(m.source,m)) -> gbeb)
+        trigger(new RB_Deliver(src, m) -> rb)
+        trigger(GBEB_Broadcast(new Data(src,m)) -> gbeb)
       }
     }
   }

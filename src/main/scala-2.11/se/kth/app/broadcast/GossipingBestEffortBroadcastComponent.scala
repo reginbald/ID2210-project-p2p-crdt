@@ -8,7 +8,6 @@ import se.sics.kompics.sl._
 import se.sics.ktoolbox.croupier.CroupierPort
 import se.sics.ktoolbox.croupier.event.CroupierSample
 import se.sics.ktoolbox.util.network.KAddress
-import se.sics.ktoolbox.util.other.AgingAdrContainer
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
