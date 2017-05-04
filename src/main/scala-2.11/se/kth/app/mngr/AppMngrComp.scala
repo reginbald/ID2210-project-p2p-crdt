@@ -4,7 +4,8 @@ import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.AppComp
 import se.kth.app.broadcast.{EagerReliableBroadcast, GossipingBestEffortBroadcastComponent}
 import se.kth.app.links.PerfectPointToPointLink
-import se.kth.app.ports.{GossipingBestEffortBroadcast, PerfectLink, ReliableBroadcast}
+import se.kth.app.ports.{AppPort, GossipingBestEffortBroadcast, PerfectLink, ReliableBroadcast}
+import se.kth.app.sim.ping.PingTestClient
 import se.kth.croupier.util.NoView
 import se.sics.kompics.{Channel, Negative, Positive, Start}
 import se.sics.kompics.network.Network
@@ -35,6 +36,9 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
 
   //******************************AUX_STATE***********************************
   private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
+  //******************************FOR_TEST************************************
+  private val client = create(classOf[PingTestClient], Init[PingTestClient](self))
+
   //**************************************************************************
 
   ctrl uponEvent {
@@ -52,6 +56,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
       connectGossipBEBComp()
       connectEagerRBComp()
       connectAppComp()
+      connectTestClient()
 
       trigger(new OverlayViewUpdate.Indication[NoView](croupierId, false, new NoView), extPorts.viewUpdate)
     }
@@ -61,9 +66,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     logger.info("Connecting App Component")
     connect(appComp.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
     connect(perfectLinkComp.getPositive(classOf[PerfectLink]), appComp.getNegative(classOf[PerfectLink]), Channel.TWO_WAY)
-    //connect(gossipBEBComp.getPositive(classOf[GossipingBestEffortBroadcast]), appComp.getNegative(classOf[GossipingBestEffortBroadcast]), Channel.TWO_WAY)
     connect(eagerRBComp.getPositive(classOf[ReliableBroadcast]), appComp.getNegative(classOf[ReliableBroadcast]), Channel.TWO_WAY)
-    connect(appComp.getNegative(classOf[CroupierPort]), extPorts.croupier, Channel.TWO_WAY)
 
   }
 
@@ -81,6 +84,12 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   private def connectEagerRBComp(){
     logger.info("Connecting Gossip BEB Component")
     connect(gossipBEBComp.getPositive(classOf[GossipingBestEffortBroadcast]), eagerRBComp.getNegative(classOf[GossipingBestEffortBroadcast]), Channel.TWO_WAY)
+  }
+
+  private def connectTestClient(): Unit ={
+    logger.info("Connecting Test Client Component")
+    connect(appComp.getPositive(classOf[AppPort]), client.getNegative(classOf[AppPort]), Channel.TWO_WAY)
+
   }
 }
 

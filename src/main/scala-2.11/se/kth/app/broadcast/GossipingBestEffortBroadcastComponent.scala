@@ -2,7 +2,7 @@ package se.kth.app.broadcast
 
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events.{HistoryRequest, _}
-import se.kth.app.ports.{BasicSample, GossipingBestEffortBroadcast, PerfectLink}
+import se.kth.app.ports.{GossipingBestEffortBroadcast, PerfectLink}
 import se.sics.kompics.{KompicsEvent, Start}
 import se.sics.kompics.sl._
 import se.sics.ktoolbox.croupier.CroupierPort

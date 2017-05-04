@@ -84,14 +84,14 @@ object ScenarioGen {
       val startPeers = new StochasticProcess() {
         {
           eventInterArrivalTime(uniform(1000, 1100))
-          raise(100, startNodeOp, new BasicIntSequentialDistribution(1))
+          raise(5, startNodeOp, new BasicIntSequentialDistribution(1))
         }
       }
 
       systemSetup.start()
       startBootstrapServer.startAfterTerminationOf(1000, systemSetup)
       startPeers.startAfterTerminationOf(1000, startBootstrapServer)
-      terminateAfterTerminationOf(1000*1000, startPeers)
+      terminateAfterTerminationOf(10*1000, startPeers)
     }
     scen
   }

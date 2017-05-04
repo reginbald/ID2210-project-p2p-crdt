@@ -26,6 +26,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="SBT: ch.qos.logback:logback-classic:0.9.28:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scalactic:scalactic_2.11:2.2.6:jar" level="project" />
     <orderEntry type="library" name="SBT: se.sics.ktoolbox.util:kcore:2.0.2-SNAPSHOT:jar" level="project" />
     <orderEntry type="library" name="SBT: se.sics.ktoolbox.util:core:2.0.2-SNAPSHOT:jar" level="project" />
     <orderEntry type="library" name="SBT: se.sics.ktoolbox.overlaymngr.bootstrap:server:2.0.2-SNAPSHOT:jar" level="project" />
@@ -53,7 +54,6 @@
     <orderEntry type="library" name="SBT: se.sics.caracaldb:caracaldb-simulator:0.0.8-SNAPSHOT:jar" level="project" />
     <orderEntry type="library" name="SBT: se.sics.caracaldb:caracaldb-core:0.0.8-SNAPSHOT:jar" level="project" />
     <orderEntry type="library" name="SBT: org.slf4j:slf4j-api:1.7.7:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.scalactic:scalactic_2.11:2.2.6:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.5:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scala-lang.modules:scala-pickling_2.11:0.10.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.2:jar" level="project" />
