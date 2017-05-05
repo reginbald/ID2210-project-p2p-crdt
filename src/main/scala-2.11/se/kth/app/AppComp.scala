@@ -4,12 +4,12 @@ import java.util.UUID
 
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events._
-import se.kth.app.ports.{AppPort, PerfectLink, ReliableBroadcast}
+import se.kth.app.ports.{AppPort, CausalOrderReliableBroadcast, PerfectLink}
 import se.kth.app.test.{Ping, Pong}
 import se.sics.kompics.{KompicsEvent, Start}
 import se.sics.kompics.sl._
 import se.sics.kompics.timer._
-import se.sics.ktoolbox.util.network.{KAddress}
+import se.sics.ktoolbox.util.network.KAddress
 
 import scala.collection.JavaConversions._
 
@@ -22,11 +22,8 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
 
   val timerPort: PositivePort[Timer] = requires[Timer]
   val pLinkPort: PositivePort[PerfectLink] = requires[PerfectLink]
-  val reliableBroadcastPort: PositivePort[ReliableBroadcast] = requires[ReliableBroadcast]
-
-
+  val broadcastPort: PositivePort[CausalOrderReliableBroadcast] = requires[CausalOrderReliableBroadcast]
   //**************************************************************************
-  private var timerId: Option[UUID] = None;
 
   private val self = init match {
     case Init(s: KAddress) => s
@@ -35,36 +32,17 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
   ctrl uponEvent {
     case _: Start => handle {
       logger.info("Starting...")
-      //val spt = new SchedulePeriodicTimeout(0, 2000);
-      //val timeout = PingTimeout(spt);
-      //spt.setTimeoutEvent(timeout);
-      //trigger(spt -> timerPort);
-      //timerId = Some(timeout.getTimeoutId());
     }
   }
 
   appPort uponEvent {
-    case AppIn(payload:KompicsEvent) => handle {
-      trigger(new RB_Broadcast(new Ping(payload)) -> reliableBroadcastPort)
+    case AppIn(payload: KompicsEvent) => handle {
+      trigger(new CORB_Broadcast(new Ping(payload)) -> broadcastPort)
     }
   }
 
-  //timerPort uponEvent {
-  //  case PingTimeout(_) => handle {
-  //    logger.info("Got Timeout event")
-  //    //trigger(TMessage(THeader(self, ponger, Transport.TCP), Ping) -> net);
-  //  }
-  //}
-
-  //croupierPort uponEvent {
-  //  case sample:CroupierSample[_] => handle {
-  //    logger.info("Got Timeout event")
-  //    trigger(new RB_Broadcast(new Ping) -> reliableBroadcastPort)
-  //  }
-  //}
-
-  reliableBroadcastPort uponEvent {
-    case RB_Deliver(src: KAddress, ping@Ping(payload:KompicsEvent))  => handle {
+  broadcastPort uponEvent {
+    case CORB_Deliver(src: KAddress, ping@Ping(payload: KompicsEvent)) => handle {
       logger.info("Received ping from: " + src)
       trigger(new PL_Send(src, new Pong), pLinkPort)
       trigger(new AppOut(src, payload), appPort)
@@ -72,20 +50,9 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
   }
 
   pLinkPort uponEvent {
-    case PL_Deliver(src: KAddress, pong:Pong) => handle {
+    case PL_Deliver(src: KAddress, pong: Pong) => handle {
       logger.info("Received pong from: " + src)
       trigger(new AppOut(src, pong), appPort)
     }
   }
-
-  //override def tearDown(): Unit = {
-  //  timerId match {
-  //    case Some(id) =>
-  //      logger.debug("CancelPeriodicTimeout")
-  //      trigger(new CancelPeriodicTimeout(id) -> timerPort);
-  //    case None => // nothing
-  //  }
-  //}
 }
-
-//case class PingTimeout(spt: SchedulePeriodicTimeout) extends Timeout(spt)

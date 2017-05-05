@@ -1,16 +1,15 @@
 package se.kth.app.broadcast
 
 import com.typesafe.scalalogging.StrictLogging
-import org.javatuples.Tuple
-import se.kth.app.events.{CORB_Deliver, GBEB_Broadcast, RB_Broadcast, RB_Deliver}
+import se.kth.app.events.{CORB_Broadcast, CORB_Deliver, RB_Broadcast, RB_Deliver}
 import se.kth.app.ports.{CausalOrderReliableBroadcast, ReliableBroadcast}
 import se.sics.kompics.KompicsEvent
 import se.sics.kompics.sl.{ComponentDefinition, Init, handle}
 import se.sics.ktoolbox.util.network.KAddress
 
-case class CausalData(src: KAddress, past:collection.mutable.Set[(KAddress,KompicsEvent)], payload:KompicsEvent) extends KompicsEvent
+case class CORBData(past:collection.mutable.Set[(KAddress,KompicsEvent)], payload:KompicsEvent) extends KompicsEvent
 
-class CausalBroadcast(init: Init[CausalBroadcast]) extends ComponentDefinition with StrictLogging {
+class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends ComponentDefinition with StrictLogging {
   var crb = provides[CausalOrderReliableBroadcast]
   val rb  = requires[ReliableBroadcast]
 
@@ -22,14 +21,14 @@ class CausalBroadcast(init: Init[CausalBroadcast]) extends ComponentDefinition w
   }
 
   crb uponEvent {
-    case RB_Broadcast(payload) => handle {
-      trigger(RB_Broadcast(new CausalData(self, past, payload)) -> rb)
+    case CORB_Broadcast(payload) => handle {
+      trigger(RB_Broadcast(new CORBData(past, payload)) -> rb)
       past += ((self, payload))
     }
   }
 
   rb uponEvent{
-    case RB_Deliver(_, CausalData(src:KAddress, mpast:collection.mutable.Set[(KAddress,KompicsEvent)], payload:KompicsEvent)) => handle {
+    case RB_Deliver(src:KAddress, CORBData(mpast:collection.mutable.Set[(KAddress,KompicsEvent)], payload:KompicsEvent)) => handle {
       if (!delivered.contains(payload)) {
         for (((s,n)) <- mpast) {
           if (!delivered.contains(n)) {

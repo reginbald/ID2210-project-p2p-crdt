@@ -8,7 +8,7 @@ import se.sics.kompics.network.Address
 import se.sics.kompics.sl._
 import se.sics.ktoolbox.util.network.KAddress
 
-case class Data(src: KAddress, payload:KompicsEvent) extends KompicsEvent
+case class ERBData(payload:KompicsEvent) extends KompicsEvent
 
 class EagerReliableBroadcast(init: Init[EagerReliableBroadcast]) extends ComponentDefinition with StrictLogging {
   /* EagerReliableBroadcast Subscriptions */
@@ -25,16 +25,16 @@ class EagerReliableBroadcast(init: Init[EagerReliableBroadcast]) extends Compone
   rb uponEvent {
     case RB_Broadcast(payload) => handle {
       /**/
-      trigger(GBEB_Broadcast(new Data(self,payload)) -> gbeb)
+      trigger(GBEB_Broadcast(new ERBData(payload)) -> gbeb)
     }
   }
 
   gbeb uponEvent{
-    case GBEB_Deliver(_, Data(src, m)) => handle {
+    case GBEB_Deliver(src:KAddress, ERBData(m:KompicsEvent)) => handle {
       if(!delivered.contains(m)) {
         delivered += m
         trigger(new RB_Deliver(src, m) -> rb)
-        trigger(GBEB_Broadcast(new Data(src,m)) -> gbeb)
+        trigger(GBEB_Broadcast(new ERBData(m)) -> gbeb)
       }
     }
   }

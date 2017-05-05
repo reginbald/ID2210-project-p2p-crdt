@@ -48,7 +48,7 @@ class PingTestClient(init: Init[PingTestClient]) extends ComponentDefinition wit
 
   appPort uponEvent {
     case AppOut(src:KAddress, Command(id:Int)) => handle {
-      logger.info("Got Command from: " + src + " with id: " + id)
+      logger.info(self + " - Got Command from: " + src + " with id: " + id)
     }
   }
 
