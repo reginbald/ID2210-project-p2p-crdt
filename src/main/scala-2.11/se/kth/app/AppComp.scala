@@ -45,7 +45,7 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
 
   appPort uponEvent {
     case AppIn(payload:KompicsEvent) => handle {
-      trigger(new RB_Broadcast(payload) -> reliableBroadcastPort)
+      trigger(new RB_Broadcast(new Ping(payload)) -> reliableBroadcastPort)
     }
   }
 
@@ -64,10 +64,10 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
   //}
 
   reliableBroadcastPort uponEvent {
-    case RB_Deliver(src: KAddress, ping:Ping)  => handle {
+    case RB_Deliver(src: KAddress, ping@Ping(payload:KompicsEvent))  => handle {
       logger.info("Received ping from: " + src)
       trigger(new PL_Send(src, new Pong), pLinkPort)
-      trigger(new AppOut(src, ping), appPort)
+      trigger(new AppOut(src, payload), appPort)
     }
   }
 

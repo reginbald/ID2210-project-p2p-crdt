@@ -50,7 +50,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   }
 
   omngrPort uponEvent {
-    case event: OMngrCroupier.ConnectResponse => handle {
+    case _: OMngrCroupier.ConnectResponse => handle {
       logger.info("Overlays connected")
       connectPerfectLinkComp()
       connectGossipBEBComp()
@@ -60,14 +60,6 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
 
       trigger(new OverlayViewUpdate.Indication[NoView](croupierId, false, new NoView), extPorts.viewUpdate)
     }
-  }
-
-  private def connectAppComp() {
-    logger.info("Connecting App Component")
-    connect(appComp.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
-    connect(perfectLinkComp.getPositive(classOf[PerfectLink]), appComp.getNegative(classOf[PerfectLink]), Channel.TWO_WAY)
-    connect(eagerRBComp.getPositive(classOf[ReliableBroadcast]), appComp.getNegative(classOf[ReliableBroadcast]), Channel.TWO_WAY)
-
   }
 
   private def connectPerfectLinkComp(){
@@ -86,8 +78,18 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     connect(gossipBEBComp.getPositive(classOf[GossipingBestEffortBroadcast]), eagerRBComp.getNegative(classOf[GossipingBestEffortBroadcast]), Channel.TWO_WAY)
   }
 
+  private def connectAppComp() {
+    logger.info("Connecting App Component")
+    connect(appComp.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
+    connect(perfectLinkComp.getPositive(classOf[PerfectLink]), appComp.getNegative(classOf[PerfectLink]), Channel.TWO_WAY)
+    connect(eagerRBComp.getPositive(classOf[ReliableBroadcast]), appComp.getNegative(classOf[ReliableBroadcast]), Channel.TWO_WAY)
+
+  }
+
   private def connectTestClient(): Unit ={
     logger.info("Connecting Test Client Component")
+    connect(client.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
+    connect(client.getNegative(classOf[CroupierPort]), extPorts.croupier, Channel.TWO_WAY)
     connect(appComp.getPositive(classOf[AppPort]), client.getNegative(classOf[AppPort]), Channel.TWO_WAY)
 
   }
