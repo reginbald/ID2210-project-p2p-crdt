@@ -75,7 +75,7 @@ class PingTestClient(init: Init[PingTestClient]) extends ComponentDefinition wit
 
   croupier uponEvent {
     case _:CroupierSample[_] => handle {
-      if(counter < 1){
+      if(counter < 5){
         logger.info("Sending Command")
         counter += 1
         res.put(self.getId + "sent", counter);
