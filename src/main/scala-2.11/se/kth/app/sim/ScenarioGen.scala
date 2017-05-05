@@ -91,7 +91,7 @@ object ScenarioGen {
       systemSetup.start()
       startBootstrapServer.startAfterTerminationOf(1000, systemSetup)
       startPeers.startAfterTerminationOf(1000, startBootstrapServer)
-      terminateAfterTerminationOf(10*1000, startPeers)
+      terminateAfterTerminationOf(100*1000, startPeers)
     }
     scen
   }

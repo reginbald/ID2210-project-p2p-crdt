@@ -35,7 +35,6 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   private val eagerRBComp = create(classOf[EagerReliableBroadcast], Init[EagerReliableBroadcast](self))
   private val causalBroadcastComp = create(classOf[NoWaitCausalBroadcast], Init[NoWaitCausalBroadcast](self))
 
-
   //******************************AUX_STATE***********************************
   private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
   //******************************FOR_TEST************************************

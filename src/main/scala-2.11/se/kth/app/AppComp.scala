@@ -36,22 +36,20 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
   }
 
   appPort uponEvent {
-    case AppIn(payload: KompicsEvent) => handle {
-      trigger(new CORB_Broadcast(new Ping(payload)) -> broadcastPort)
+    case AppIn(payload: Ping) => handle {
+      trigger(new CORB_Broadcast(payload) -> broadcastPort)
     }
   }
 
   broadcastPort uponEvent {
-    case CORB_Deliver(src: KAddress, ping@Ping(payload: KompicsEvent)) => handle {
-      logger.info("Received ping from: " + src)
+    case CORB_Deliver(src: KAddress, ping:Ping) => handle {
       trigger(new PL_Send(src, new Pong), pLinkPort)
-      trigger(new AppOut(src, payload), appPort)
+      trigger(new AppOut(src, ping), appPort)
     }
   }
 
   pLinkPort uponEvent {
     case PL_Deliver(src: KAddress, pong: Pong) => handle {
-      logger.info("Received pong from: " + src)
       trigger(new AppOut(src, pong), appPort)
     }
   }

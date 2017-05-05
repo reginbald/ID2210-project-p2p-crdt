@@ -38,7 +38,8 @@ class GossipingBestEffortBroadcastComponent(init: Init[GossipingBestEffortBroadc
   croupier uponEvent {
     case  sample:CroupierSample[_] => handle {
       logger.info("Croupier sample received")
-      for (p <- sample.publicSample.values().map{ x => x.getSource}) trigger(new PL_Send(p, new HistoryRequest) -> pLink)
+      val nodes = sample.publicSample.values().map{ x => x.getSource}
+      for (p <- nodes) trigger(new PL_Send(p, new HistoryRequest) -> pLink)
     }
   }
 
