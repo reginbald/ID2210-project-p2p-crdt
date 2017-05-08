@@ -79,7 +79,7 @@ class PingTestClient(init: Init[PingTestClient]) extends ComponentDefinition wit
         logger.info("Sending Command")
         counter += 1
         res.put(self.getId + "sent", counter);
-        trigger(AppIn(Ping()) -> appPort)
+        trigger(AppIn(Ping(self, counter)) -> appPort)
       }
 
     }

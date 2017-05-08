@@ -31,7 +31,7 @@ class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends Component
   crb uponEvent {
     case CORB_Broadcast(payload) => handle {
       trigger(RB_Broadcast(CORBData(past, payload)) -> rb)
-      past += ((self, payload))
+      past.append((self, payload))
     }
   }
 
@@ -41,16 +41,16 @@ class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends Component
         for ((s:KAddress, n:KompicsEvent) <- mPast) {
           if (!delivered.contains(n)) {
             trigger(CORB_Deliver(s, n) -> crb)
-            delivered += n
+            delivered.add(n)
             if (!past.contains(s, n)) {
-              past += ((s, n))
+              past.append((s, n))
             }
           }
         }
         trigger(CORB_Deliver(src, payload) -> crb)
-        delivered += payload
+        delivered.add(payload)
         if (!past.contains((src,payload))){
-          past += ((src,payload))
+          past.append((src,payload))
         }
       }
     }

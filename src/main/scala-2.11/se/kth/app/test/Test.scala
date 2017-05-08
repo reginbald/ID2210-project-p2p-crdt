@@ -1,9 +1,10 @@
 package se.kth.app.test
 
 import se.sics.kompics.KompicsEvent
+import se.sics.ktoolbox.util.network.KAddress
 
 /**
   * Created by reginbald on 26/04/2017.
   */
-case class Ping() extends KompicsEvent
-case class Pong() extends KompicsEvent
+case class Ping(src:KAddress, id:Int) extends KompicsEvent
+case class Pong(src:KAddress, id:Int) extends KompicsEvent

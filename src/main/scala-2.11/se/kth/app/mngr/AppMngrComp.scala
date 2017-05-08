@@ -89,8 +89,8 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     logger.info("Connecting App Component")
     connect(appComp.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
     connect(perfectLinkComp.getPositive(classOf[PerfectLink]), appComp.getNegative(classOf[PerfectLink]), Channel.TWO_WAY)
-    connect(causalBroadcastComp.getPositive(classOf[CausalOrderReliableBroadcast]), appComp.getNegative(classOf[CausalOrderReliableBroadcast]), Channel.TWO_WAY)
-
+    //connect(causalBroadcastComp.getPositive(classOf[CausalOrderReliableBroadcast]), appComp.getNegative(classOf[CausalOrderReliableBroadcast]), Channel.TWO_WAY)
+    connect(eagerRBComp.getPositive(classOf[ReliableBroadcast]), appComp.getNegative(classOf[ReliableBroadcast]), Channel.TWO_WAY)
   }
 
   private def connectTestClient(): Unit ={

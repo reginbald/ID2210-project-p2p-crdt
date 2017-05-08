@@ -1,12 +1,10 @@
 package se.kth.app
 
-import java.util.UUID
-
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events._
-import se.kth.app.ports.{AppPort, CausalOrderReliableBroadcast, PerfectLink}
+import se.kth.app.ports.{AppPort, CausalOrderReliableBroadcast, PerfectLink, ReliableBroadcast}
 import se.kth.app.test.{Ping, Pong}
-import se.sics.kompics.{KompicsEvent, Start}
+import se.sics.kompics.Start
 import se.sics.kompics.sl._
 import se.sics.kompics.timer._
 import se.sics.ktoolbox.util.network.KAddress
@@ -22,7 +20,7 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
 
   val timerPort: PositivePort[Timer] = requires[Timer]
   val pLinkPort: PositivePort[PerfectLink] = requires[PerfectLink]
-  val broadcastPort: PositivePort[CausalOrderReliableBroadcast] = requires[CausalOrderReliableBroadcast]
+  val broadcastPort: PositivePort[ReliableBroadcast] = requires[ReliableBroadcast]
   //**************************************************************************
 
   private val self = init match {
@@ -37,14 +35,16 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
 
   appPort uponEvent {
     case AppIn(payload: Ping) => handle {
-      trigger(new CORB_Broadcast(payload) -> broadcastPort)
+      trigger(new RB_Broadcast(payload) -> broadcastPort)
     }
   }
 
   broadcastPort uponEvent {
-    case CORB_Deliver(src: KAddress, ping:Ping) => handle {
-      trigger(new PL_Send(src, new Pong), pLinkPort)
-      trigger(new AppOut(src, ping), appPort)
+    case RB_Deliver(src: KAddress, ping:Ping) => handle {
+      if (!src.equals(self)){
+        trigger(new PL_Send(src, new Pong(self, ping.id)), pLinkPort)
+        trigger(new AppOut(src, ping), appPort)
+      }
     }
   }
 

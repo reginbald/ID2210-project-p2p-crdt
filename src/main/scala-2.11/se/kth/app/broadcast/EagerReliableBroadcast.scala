@@ -37,7 +37,7 @@ class EagerReliableBroadcast(init: Init[EagerReliableBroadcast]) extends Compone
   gbeb uponEvent{
     case GBEB_Deliver(_:KAddress, ERBData(src:KAddress, m:KompicsEvent)) => handle {
       if(!delivered.contains(m)) {
-        delivered += m
+        delivered +=  m
         trigger(RB_Deliver(src, m) -> rb)
         trigger(GBEB_Broadcast(ERBData(src, m)) -> gbeb)
       }
