@@ -8,24 +8,23 @@ import se.sics.kompics.sl.{ComponentDefinition, Init, NegativePort, PositivePort
 import se.sics.ktoolbox.util.network.KAddress
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends ComponentDefinition with StrictLogging {
   // Ports
   var crb: NegativePort[CausalOrderReliableBroadcast] = provides[CausalOrderReliableBroadcast]
   val rb: PositivePort[ReliableBroadcast] = requires[ReliableBroadcast]
 
-  var delivered: mutable.Set[KompicsEvent] = collection.mutable.Set[KompicsEvent]()
-  var past: mutable.Set[(KAddress, KompicsEvent)] = collection.mutable.Set[(KAddress,KompicsEvent)]()
+  var delivered: mutable.Set[KompicsEvent] = mutable.Set.empty[KompicsEvent]
+  var past: mutable.ListBuffer[(KAddress, KompicsEvent)] = mutable.ListBuffer.empty[(KAddress,KompicsEvent)]
 
-  val (self) = init match {
-    case Init(s: KAddress) => s
-  }
+  val self: KAddress = init match { case Init(s: KAddress) => s }
 
   ctrl uponEvent {
     case _:Start => handle {
       logger.info("Starting...")
-      delivered = collection.mutable.Set[KompicsEvent]()
-      past = collection.mutable.Set[(KAddress,KompicsEvent)]()
+      delivered = mutable.Set.empty[KompicsEvent]
+      past = ListBuffer.empty[(KAddress,KompicsEvent)]
     }
   }
 
@@ -37,21 +36,21 @@ class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends Component
   }
 
   rb uponEvent{
-    case RB_Deliver(src:KAddress, CORBData(mPast:collection.mutable.Set[(KAddress,KompicsEvent)], payload:KompicsEvent)) => handle {
+    case RB_Deliver(src:KAddress, CORBData(mPast:ListBuffer[(KAddress,KompicsEvent)], payload:KompicsEvent)) => handle {
       if (!delivered.contains(payload)) {
-        for (((s,n)) <- mPast) {
+        for ((s:KAddress, n:KompicsEvent) <- mPast) {
           if (!delivered.contains(n)) {
-            trigger(CORB_Deliver(s,n) -> crb)
+            trigger(CORB_Deliver(s, n) -> crb)
             delivered += n
-            if (!past.contains(s,n)) {
-              past += ((s,n))
+            if (!past.contains(s, n)) {
+              past += ((s, n))
             }
           }
         }
-        trigger(CORB_Deliver(src,payload) -> crb)
+        trigger(CORB_Deliver(src, payload) -> crb)
         delivered += payload
         if (!past.contains((src,payload))){
-          past.add((src,payload))
+          past += ((src,payload))
         }
       }
     }

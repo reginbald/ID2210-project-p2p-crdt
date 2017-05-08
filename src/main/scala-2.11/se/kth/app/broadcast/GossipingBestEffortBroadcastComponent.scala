@@ -10,22 +10,23 @@ import se.sics.ktoolbox.croupier.event.CroupierSample
 import se.sics.ktoolbox.util.network.KAddress
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.Set
 
 /**
   * Created by reginbald on 28/04/2017.
   */
 class GossipingBestEffortBroadcastComponent(init: Init[GossipingBestEffortBroadcastComponent]) extends ComponentDefinition with StrictLogging{
-  val gbeb = provides[GossipingBestEffortBroadcast]
-  val pLink = requires[PerfectLink]
-  val croupier = requires[CroupierPort]
+  val gbeb: NegativePort[GossipingBestEffortBroadcast] = provides[GossipingBestEffortBroadcast]
+  val pLink: PositivePort[PerfectLink] = requires[PerfectLink]
+  val croupier: PositivePort[CroupierPort] = requires[CroupierPort]
 
-  var self = init match {case Init(self:KAddress) => self}
-  var past = new ListBuffer[(KAddress, KompicsEvent)]
+  var self: KAddress = init match {case Init(self:KAddress) => self}
+  var past: Set[(KAddress, KompicsEvent)] = Set.empty[(KAddress, KompicsEvent)]
 
   ctrl uponEvent {
     case _:Start => handle {
       logger.info("Starting...")
+      past = Set.empty[(KAddress, KompicsEvent)]
     }
   }
 
@@ -38,19 +39,22 @@ class GossipingBestEffortBroadcastComponent(init: Init[GossipingBestEffortBroadc
   croupier uponEvent {
     case  sample:CroupierSample[_] => handle {
       logger.info("Croupier sample received")
-      val nodes = sample.publicSample.values().map{ x => x.getSource}
-      for (p <- nodes) trigger(new PL_Send(p, new HistoryRequest) -> pLink)
+      if(!sample.publicSample.isEmpty){
+        val nodes = sample.publicSample.values().map{ x => x.getSource}
+        for (p <- nodes) trigger(PL_Send(p, new HistoryRequest) -> pLink)
+
+      }
     }
   }
 
   pLink uponEvent {
     case  PL_Deliver(src: KAddress, _:HistoryRequest) => handle {
-      trigger(new PL_Send(src, new HistoryResponse(past)) -> pLink)
+      trigger(PL_Send(src, HistoryResponse(past)) -> pLink)
     }
-    case PL_Deliver(src:KAddress, history:HistoryResponse) => handle {
-      val unseen = history.history.diff(past)
+    case PL_Deliver(_:KAddress, HistoryResponse(history)) => handle {
+      val unseen = history.diff(past)
 
-      for ((pp, m) <- unseen) trigger(new GBEB_Deliver(pp, m) -> gbeb)
+      for ((pp, m) <- unseen) trigger(GBEB_Deliver(pp, m) -> gbeb)
       past ++= unseen
     }
   }
