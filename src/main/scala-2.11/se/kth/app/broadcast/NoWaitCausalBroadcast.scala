@@ -1,13 +1,11 @@
 package se.kth.app.broadcast
 
 import com.typesafe.scalalogging.StrictLogging
-import se.kth.app.events.{CORB_Broadcast, CORB_Deliver, RB_Broadcast, RB_Deliver}
+import se.kth.app.events._
 import se.kth.app.ports.{CausalOrderReliableBroadcast, ReliableBroadcast}
 import se.sics.kompics.KompicsEvent
 import se.sics.kompics.sl.{ComponentDefinition, Init, handle}
 import se.sics.ktoolbox.util.network.KAddress
-
-case class CORBData(past:collection.mutable.Set[(KAddress,KompicsEvent)], payload:KompicsEvent) extends KompicsEvent
 
 class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends ComponentDefinition with StrictLogging {
   var crb = provides[CausalOrderReliableBroadcast]
