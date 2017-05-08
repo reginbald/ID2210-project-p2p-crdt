@@ -30,27 +30,27 @@ class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends Component
 
   crb uponEvent {
     case CORB_Broadcast(payload) => handle {
-      trigger(RB_Broadcast(CORBData(past, payload)) -> rb)
-      past.append((self, payload))
+      trigger(RB_Broadcast(CORBData(past.toList, payload)) -> rb)
+      past += ((self, payload))
     }
   }
 
   rb uponEvent{
-    case RB_Deliver(src:KAddress, CORBData(mPast:ListBuffer[(KAddress,KompicsEvent)], payload:KompicsEvent)) => handle {
+    case RB_Deliver(src:KAddress, CORBData(mPast:List[(KAddress,KompicsEvent)], payload:KompicsEvent)) => handle {
       if (!delivered.contains(payload)) {
         for ((s:KAddress, n:KompicsEvent) <- mPast) {
           if (!delivered.contains(n)) {
             trigger(CORB_Deliver(s, n) -> crb)
-            delivered.add(n)
+            delivered += n
             if (!past.contains(s, n)) {
-              past.append((s, n))
+              past += ((s, n))
             }
           }
         }
         trigger(CORB_Deliver(src, payload) -> crb)
-        delivered.add(payload)
+        delivered += payload
         if (!past.contains((src,payload))){
-          past.append((src,payload))
+          past += ((src,payload))
         }
       }
     }

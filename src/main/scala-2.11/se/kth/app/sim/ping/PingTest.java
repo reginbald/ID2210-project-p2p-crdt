@@ -62,7 +62,7 @@ public class PingTest {
     }
 
     @Test
-    public void OneNodeKilled() {
+    public void CorrectNodeSendAllCorrectNodesDeliver() {
         SimulationScenario.setSeed(ScenarioSetup.scenarioSeed());
         SimulationScenario simpleBootScenario = ScenarioGen.killOne();
         simpleBootScenario.simulate(LauncherComp.class);
@@ -88,24 +88,48 @@ public class PingTest {
         int node5_pong = res.get("5pong", Integer.class);
 
         // All should send 5 pings
-        Assert.assertEquals("Node 1 should send 5 pings", 5, node1_sent);
+        //Assert.assertEquals("Node 1 should send 5 pings", 5, node1_sent); faulty
         Assert.assertEquals("Node 2 should send 5 pings", 5, node2_sent);
         Assert.assertEquals("Node 3 should send 5 pings", 5, node3_sent);
         Assert.assertEquals("Node 4 should send 5 pings", 5, node4_sent);
         Assert.assertEquals("Node 5 should send 5 pings", 5, node5_sent);
 
         // All should receive 4 pings
-        Assert.assertEquals("Node 1 should get 4*5 pings",4*5, node1_ping);
-        Assert.assertEquals("Node 2 should get 4*5 pings",4*5, node2_ping);
-        Assert.assertEquals("Node 3 should get 4*5 pings",4*5, node3_ping);
-        Assert.assertEquals("Node 4 should get 4*5 pings",4*5, node4_ping);
-        Assert.assertEquals("Node 5 should get 4*5 pings",4*5, node5_ping);
+        //Assert.assertEquals("Node 1 should get 4*5 pings",4*5, node1_ping); faulty
+        Assert.assertTrue("Node 2 should deliver all pings sent from all correct nodes", node3_sent + node4_sent + node5_sent <= node2_ping && node2_ping <= node1_sent + node3_sent + node4_sent + node5_sent);
+        Assert.assertTrue("Node 3 should deliver all pings sent from all correct nodes", node2_sent + node4_sent + node5_sent <= node3_ping && node3_ping <= node1_sent + node2_sent + node4_sent + node5_sent);
+        Assert.assertTrue("Node 4 should deliver all pings sent from all correct nodes", node2_sent + node3_sent + node5_sent <= node4_ping && node4_ping <= node1_sent + node3_sent + node2_sent + node5_sent);
+        Assert.assertTrue("Node 5 should deliver all pings sent from all correct nodes", node2_sent + node3_sent + node4_sent <= node5_ping && node5_ping <= node1_sent + node3_sent + node4_sent + node2_sent);
+
 
         // All should receive 4 pongs
-        Assert.assertEquals("Node 1 should get 4*5 pongs", 4*5, node1_pong);
-        Assert.assertEquals("Node 2 should get 4*5 pongs", 4*5, node2_pong);
-        Assert.assertEquals("Node 3 should get 4*5 pongs", 4*5, node3_pong);
-        Assert.assertEquals("Node 4 should get 4*5 pongs", 4*5, node4_pong);
-        Assert.assertEquals("Node 5 should get 4*5 pongs", 4*5, node5_pong);
+        //Assert.assertEquals("Node 1 should get 4*5 pongs", 4*5, node1_pong); faulty
+        Assert.assertTrue("Node 2 should deliver all pongs sent from all correct nodes", node3_sent + node4_sent + node5_sent <= node2_pong && node2_pong <= node1_sent + node3_sent + node4_sent + node5_sent);
+        Assert.assertTrue("Node 3 should deliver all pongs sent from all correct nodes", node2_sent + node4_sent + node5_sent <= node3_pong && node3_pong <= node1_sent + node2_sent + node4_sent + node5_sent);
+        Assert.assertTrue("Node 4 should deliver all pongs sent from all correct nodes", node2_sent + node3_sent + node5_sent <= node4_pong && node4_pong <= node1_sent + node3_sent + node2_sent + node5_sent);
+        Assert.assertTrue("Node 5 should deliver all pongs sent from all correct nodes", node2_sent + node3_sent + node4_sent <= node5_pong && node5_pong <= node1_sent + node3_sent + node4_sent + node2_sent);
+    }
+
+    @Test
+    public void CorrectNodeDeliverAllCorrectNodesDeliver() {
+        SimulationScenario.setSeed(ScenarioSetup.scenarioSeed());
+        SimulationScenario simpleBootScenario = ScenarioGen.killOne();
+        simpleBootScenario.simulate(LauncherComp.class);
+
+        int node2_ping = res.get("2ping", Integer.class);
+
+        int node3_ping = res.get("3ping", Integer.class);
+
+        int node4_ping = res.get("4ping", Integer.class);
+
+        int node5_ping = res.get("5ping", Integer.class);
+
+        // Pings
+        Assert.assertTrue("Node 2 and 3 should deliver the same amount of pings", node2_ping == node3_ping);
+        Assert.assertTrue("Node 2 and 4 should deliver the same amount of pings", node2_ping == node4_ping);
+        Assert.assertTrue("Node 2 and 5 should deliver the same amount of pings", node2_ping == node5_ping);
+        Assert.assertTrue("Node 3 and 4 should deliver the same amount of pings", node3_ping == node4_ping);
+        Assert.assertTrue("Node 3 and 5 should deliver the same amount of pings", node3_ping == node5_ping);
+        Assert.assertTrue("Node 4 and 5 should deliver the same amount of pings", node4_ping == node5_ping);
     }
 }
