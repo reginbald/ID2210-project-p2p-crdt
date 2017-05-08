@@ -3,27 +3,34 @@ package se.kth.app.broadcast
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events._
 import se.kth.app.ports.{GossipingBestEffortBroadcast, ReliableBroadcast}
-import se.sics.kompics.KompicsEvent
-import se.sics.kompics.network.Address
+import se.sics.kompics.{KompicsEvent, Start}
 import se.sics.kompics.sl._
 import se.sics.ktoolbox.util.network.KAddress
 
+import scala.collection.mutable
+
 class EagerReliableBroadcast(init: Init[EagerReliableBroadcast]) extends ComponentDefinition with StrictLogging {
   /* EagerReliableBroadcast Subscriptions */
-  val gbeb = requires[GossipingBestEffortBroadcast]
-  val rb = provides[ReliableBroadcast]
+  val gbeb: PositivePort[GossipingBestEffortBroadcast] = requires[GossipingBestEffortBroadcast]
+  val rb: NegativePort[ReliableBroadcast] = provides[ReliableBroadcast]
 
   /* state */
-  val delivered = collection.mutable.Set[KompicsEvent]()
-  val self = init match {
+  var delivered: mutable.Set[KompicsEvent] = collection.mutable.Set[KompicsEvent]()
+  val self: KAddress = init match {
     case Init(s: KAddress) => s
-  };
+  }
+
+  ctrl uponEvent {
+    case _:Start => handle {
+      logger.info("Starting...")
+      delivered = collection.mutable.Set[KompicsEvent]()
+    }
+  }
 
   /* EagerReliableBroadcast Event Handlers */
   rb uponEvent {
     case RB_Broadcast(payload) => handle {
-      /**/
-      trigger(GBEB_Broadcast(new ERBData(payload)) -> gbeb)
+      trigger(GBEB_Broadcast(ERBData(payload)) -> gbeb)
     }
   }
 
@@ -31,8 +38,8 @@ class EagerReliableBroadcast(init: Init[EagerReliableBroadcast]) extends Compone
     case GBEB_Deliver(src:KAddress, ERBData(m:KompicsEvent)) => handle {
       if(!delivered.contains(m)) {
         delivered += m
-        trigger(new RB_Deliver(src, m) -> rb)
-        trigger(GBEB_Broadcast(new ERBData(m)) -> gbeb)
+        trigger(RB_Deliver(src, m) -> rb)
+        trigger(GBEB_Broadcast(ERBData(m)) -> gbeb)
       }
     }
   }
