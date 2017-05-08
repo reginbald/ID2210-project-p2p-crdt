@@ -24,7 +24,7 @@ class GossipingBestEffortBroadcastComponent(init: Init[GossipingBestEffortBroadc
   var past = new ListBuffer[(KAddress, KompicsEvent)]
 
   ctrl uponEvent {
-    case Start => handle {
+    case _:Start => handle {
       logger.info("Starting...")
     }
   }
