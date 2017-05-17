@@ -29,7 +29,12 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     }
   }
 
+  // Todo remove site will use self
+  def generateLineId(p: LineId, q: LineId, N: Int, boundary: Int, site: KAddress): LineId = {
+    null
+  }
 
+  // Todo remove site will use self
   def constructId(r: mutable.ListBuffer[Int], p: LineId, q: LineId, site: KAddress): LineId = {
     val id = new LineId(mutable.ListBuffer.empty)
     for( i <- 1 to r.size){
