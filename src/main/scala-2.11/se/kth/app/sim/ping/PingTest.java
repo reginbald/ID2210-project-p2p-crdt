@@ -117,11 +117,8 @@ public class PingTest {
         simpleBootScenario.simulate(LauncherComp.class);
 
         int node2_ping = res.get("2ping", Integer.class);
-
         int node3_ping = res.get("3ping", Integer.class);
-
         int node4_ping = res.get("4ping", Integer.class);
-
         int node5_ping = res.get("5ping", Integer.class);
 
         // Pings
