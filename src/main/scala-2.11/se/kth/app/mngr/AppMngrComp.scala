@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.AppComp
 import se.kth.app.broadcast.{EagerReliableBroadcast, GossipingBestEffortBroadcastComponent, NoWaitCausalBroadcast}
 import se.kth.app.links.PerfectPointToPointLink
+import se.kth.app.logoot.Logoot
 import se.kth.app.ports._
 import se.kth.app.sim.ping.PingTestClient
 import se.kth.croupier.util.NoView
@@ -34,6 +35,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   private val gossipBEBComp = create(classOf[GossipingBestEffortBroadcastComponent], Init[GossipingBestEffortBroadcastComponent](self))
   private val eagerRBComp = create(classOf[EagerReliableBroadcast], Init[EagerReliableBroadcast](self))
   private val causalBroadcastComp = create(classOf[NoWaitCausalBroadcast], Init[NoWaitCausalBroadcast](self))
+  private val logootComp = create(classOf[Logoot], Init[Logoot](self))
 
   //******************************AUX_STATE***********************************
   private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
@@ -57,6 +59,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
       connectGossipBEBComp()
       connectEagerRBComp()
       connectCausalBroadcastComp()
+      connectLogootComp()
       connectAppComp()
       connectTestClient()
 
@@ -85,11 +88,17 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     connect(eagerRBComp.getPositive(classOf[ReliableBroadcast]), causalBroadcastComp.getNegative(classOf[ReliableBroadcast]), Channel.TWO_WAY)
   }
 
+  private def connectLogootComp() {
+    logger.info("connecting logoot component")
+    connect(logootComp.getPositive(classOf[CausalOrderReliableBroadcast]), causalBroadcastComp.getNegative(classOf[CausalOrderReliableBroadcast]), Channel.TWO_WAY)
+  }
+
   private def connectAppComp() {
     logger.info("Connecting App Component")
     connect(appComp.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
     connect(perfectLinkComp.getPositive(classOf[PerfectLink]), appComp.getNegative(classOf[PerfectLink]), Channel.TWO_WAY)
     connect(causalBroadcastComp.getPositive(classOf[CausalOrderReliableBroadcast]), appComp.getNegative(classOf[CausalOrderReliableBroadcast]), Channel.TWO_WAY)
+    connect(logootComp.getPositive(classOf[LogootPort]), appComp.getNegative(classOf[LogootPort]), Channel.TWO_WAY)
   }
 
   private def connectTestClient(): Unit ={

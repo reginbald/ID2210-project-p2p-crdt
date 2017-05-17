@@ -10,7 +10,6 @@ import se.sics.kompics.sl.{ComponentDefinition, Init, PositivePort, handle}
 
 class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging {
   val nwcb: PositivePort[CausalOrderReliableBroadcast] = requires[CausalOrderReliableBroadcast]
-
   var identifierTable: List[(Int, Int, Int)] = List.empty
 
   /* Logoot events */
