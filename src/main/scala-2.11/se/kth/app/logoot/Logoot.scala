@@ -1,9 +1,10 @@
 package se.kth.app.logoot
 
+import java.util.UUID
+
 import com.typesafe.scalalogging.StrictLogging
-import se.kth.app.events.{Logoot_Deliver, Logoot_Insert}
+import se.kth.app.events.{Logoot_Deliver, Logoot_Insert, Logoot_Redo, Logoot_Undo}
 import se.kth.app.broadcast.NoWaitCausalBroadcast
-import se.kth.app.events.Logoot_Insert
 import se.kth.app.ports.{CausalOrderReliableBroadcast, LogootPort}
 import se.sics.kompics.Start
 import se.sics.kompics.sl.{ComponentDefinition, Init, NegativePort, PositivePort, handle}
@@ -22,6 +23,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   var clock: Int = 0
   var cemetery = new Cemetery
   var document = new Document
+  var histBuff = new HistoryBuffer
 
   /* Logoot events */
   ctrl uponEvent {
@@ -33,9 +35,46 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   nwcb uponEvent {
     case Logoot_Deliver(patch:Patch) => handle {
       logger.info("logoot received patch")
-      //execute(patch)
-      //HB.add(patch
+      execute(patch)
+      histBuff.add(patch)
+      patch.degree = 1
     }
+    case Logoot_Deliver(Logoot_Undo(patchId: UUID)) => handle {
+      logger.info("logoot received undo")
+      histBuff.get(patchId) match {
+        case Some(patch) => {
+          patch.degree -= 1
+          if (patch.degree == 0){
+            execute(inverse(patch))
+          }
+        }
+        case None => logger.info("patch not found")
+      }
+    }
+    case Logoot_Deliver(Logoot_Redo(patchId: UUID)) => handle {
+      logger.info("logoot received redo")
+      histBuff.get(patchId) match {
+        case Some(patch) => {
+          patch.degree += 1
+          if (patch.degree == 0){
+            execute(patch)
+          }
+        }
+        case None => logger.info("patch not found")
+      }
+    }
+  }
+
+  def inverse(patch:Patch): Patch ={
+    var out:Patch = new Patch(patch.id, patch.degree, new ListBuffer[Operation])
+    for (i <- 0 to patch.operations.size -1){
+      patch.operations(i) match {
+        case insert:Insert => out.operations += new Remove(insert.id, insert.content)
+        case remove:Remove => out.operations += new Insert(remove.id, remove.content)
+      }
+      out.operations
+    }
+    out
   }
 
   // Todo remove site will use self
