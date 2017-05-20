@@ -2,6 +2,8 @@ package se.kth.app.logoot
 
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events.{Logoot_Deliver, Logoot_Insert}
+import se.kth.app.broadcast.NoWaitCausalBroadcast
+import se.kth.app.events.Logoot_Insert
 import se.kth.app.ports.{CausalOrderReliableBroadcast, LogootPort}
 import se.sics.kompics.Start
 import se.sics.kompics.sl.{ComponentDefinition, Init, NegativePort, PositivePort, handle}
@@ -15,12 +17,11 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   val nwcb: PositivePort[CausalOrderReliableBroadcast] = requires[CausalOrderReliableBroadcast]
   val rb: NegativePort[LogootPort] = provides[LogootPort]
 
-  var identifierTable: mutable.ListBuffer[(Int, Int, Int)] = mutable.ListBuffer.empty
-  var clock: Int = 0/*mutable.Map[KAddress, Int] = mutable.Map.empty[KAddress, Int]*/
+  var identifierTable = new IdentifierTable //mutable.ListBuffer[(Int, Int, Int)] = mutable.ListBuffer.empty
 
-  //val self: KAddress = init match {
-  //  case Init(s: KAddress) => s
-  //}
+  var clock: Int = 0
+  var cemetery = new Cemetery
+  var document = new Document
 
   /* Logoot events */
   ctrl uponEvent {
@@ -114,5 +115,26 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       id.positions += new Position(d, s, c)
     }
     id
+  }
+
+  def execute(patch: Patch): Unit = {
+    for(op <- patch){
+      op match {
+        case in: Insert =>
+          val degree: Int = cemetery.get(in.id) + 1
+          if (degree == 1) {
+            val position = identifierTable.binarySearch(in.id)
+            document.insert(position, in.content)
+            identifierTable.insert(position,in.id)
+          }
+          else {
+            cemetery.set(in.id, degree)
+          }
+        case del:Remove =>
+          //position := idT able.binarySearch(id);
+          val position = identifierTable.binarySearch(del.id)
+          if (identifierTable.)
+      }
+    }
   }
 }

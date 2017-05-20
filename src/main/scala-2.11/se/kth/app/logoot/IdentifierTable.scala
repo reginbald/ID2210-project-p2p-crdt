@@ -29,4 +29,8 @@ class IdentifierTable {
   def remove(index: Int, id: LineId) = {
     table.remove(index)
   }
+
+  def getId(index: Int): LineId = {
+    table(index)
+  }
 }
