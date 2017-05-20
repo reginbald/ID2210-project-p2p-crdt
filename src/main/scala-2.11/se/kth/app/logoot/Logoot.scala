@@ -3,8 +3,7 @@ package se.kth.app.logoot
 import java.util.UUID
 
 import com.typesafe.scalalogging.StrictLogging
-import se.kth.app.events.{Logoot_Deliver, Logoot_Insert, Logoot_Redo, Logoot_Undo}
-import se.kth.app.broadcast.NoWaitCausalBroadcast
+import se.kth.app.events._
 import se.kth.app.ports.{CausalOrderReliableBroadcast, LogootPort}
 import se.sics.kompics.Start
 import se.sics.kompics.sl.{ComponentDefinition, Init, NegativePort, PositivePort, handle}
@@ -16,11 +15,12 @@ import scala.collection.mutable.ListBuffer
 
 class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging {
   val nwcb: PositivePort[CausalOrderReliableBroadcast] = requires[CausalOrderReliableBroadcast]
-  val rb: NegativePort[LogootPort] = provides[LogootPort]
+  val logootPort: NegativePort[LogootPort] = provides[LogootPort]
 
-  var identifierTable = new IdentifierTable //mutable.ListBuffer[(Int, Int, Int)] = mutable.ListBuffer.empty
+  val self: KAddress = init match { case Init(s: KAddress) => s }
 
   var clock: Int = 0
+  var identifierTable = new IdentifierTable
   var cemetery = new Cemetery
   var document = new Document
   var histBuff = new HistoryBuffer
@@ -32,45 +32,66 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     }
   }
 
+  logootPort uponEvent {
+    case Logoot_Do(start: Int, end:Int, patch:Patch) => handle {
+      logger.info("logoot received patch from client")
+      val p:LineId = identifierTable.getId(start)
+      val q:LineId = identifierTable.getId(end)
+      val N:Int = patch.operations.size
+      val ids:ListBuffer[LineId] = generateLineId(p, q, N, 10, self)
+
+      for (i <- 0 until N){
+        patch.operations(i).id = ids(i)
+      }
+      trigger(CORB_Broadcast(Logoot_Patch(patch)), nwcb)
+    }
+    case undo:Logoot_Undo => handle {
+      logger.info("logoot received undo from client")
+      trigger(CORB_Broadcast(undo), nwcb)
+    }
+    case redo:Logoot_Redo => handle {
+      logger.info("logoot received redo from client")
+      trigger(CORB_Broadcast(redo), nwcb)
+    }
+  }
+
   nwcb uponEvent {
-    case Logoot_Deliver(patch:Patch) => handle {
+    case Logoot_Patch(patch:Patch) => handle {
       logger.info("logoot received patch")
       execute(patch)
       histBuff.add(patch)
       patch.degree = 1
     }
-    case Logoot_Deliver(Logoot_Undo(patchId: UUID)) => handle {
+    case Logoot_Undo(patchId: UUID) => handle {
       logger.info("logoot received undo")
       histBuff.get(patchId) match {
-        case Some(patch) => {
+        case Some(patch) =>
           patch.degree -= 1
           if (patch.degree == 0){
             execute(inverse(patch))
           }
-        }
         case None => logger.info("patch not found")
       }
     }
-    case Logoot_Deliver(Logoot_Redo(patchId: UUID)) => handle {
+    case Logoot_Redo(patchId: UUID) => handle {
       logger.info("logoot received redo")
       histBuff.get(patchId) match {
-        case Some(patch) => {
+        case Some(patch) =>
           patch.degree += 1
           if (patch.degree == 0){
             execute(patch)
           }
-        }
         case None => logger.info("patch not found")
       }
     }
   }
 
   def inverse(patch:Patch): Patch ={
-    var out:Patch = new Patch(patch.id, patch.degree, new ListBuffer[Operation])
-    for (i <- 0 to patch.operations.size -1){
+    val out:Patch = new Patch(patch.id, patch.degree, new ListBuffer[Operation])
+    for (i <- patch.operations.indices){
       patch.operations(i) match {
-        case insert:Insert => out.operations += new Remove(insert.id, insert.content)
-        case remove:Remove => out.operations += new Insert(remove.id, remove.content)
+        case insert:Insert => out.operations += Remove(insert.id, insert.content)
+        case remove:Remove => out.operations += Insert(remove.id, remove.content)
       }
       out.operations
     }
@@ -99,7 +120,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
 
   def toBase10(digits: mutable.ListBuffer[Int]): Int ={
     var out: Int = 0
-    for(i <- 0 to digits.size -1){
+    for(i <- digits.indices){
       out = digits(i) * math.pow(10, i).toInt
     }
     out
@@ -117,7 +138,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
 
   def prefix(p: LineId, index: Int): mutable.ListBuffer[Int] = { // Todo check if correct
     var out: mutable.ListBuffer[Int] = new mutable.ListBuffer[Int]
-    for (i <- 0 to index - 1) {
+    for (i <- 0 until index) {
       if (i >= p.positions.size){
         out += 0
       } else {
@@ -136,7 +157,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   // Todo remove site will use self
   def constructId(r: mutable.ListBuffer[Int], p: LineId, q: LineId, site: KAddress): LineId = {
     val id = new LineId(mutable.ListBuffer.empty)
-    for( i <- 0 to r.size - 1){
+    for( i <- r.indices){
       val d = r(i)
       var s: KAddress = null
       var c:Int = 0
