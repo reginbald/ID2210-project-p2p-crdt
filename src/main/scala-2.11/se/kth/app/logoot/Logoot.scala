@@ -16,9 +16,11 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   val nwcb: PositivePort[CausalOrderReliableBroadcast] = requires[CausalOrderReliableBroadcast]
   val rb: NegativePort[LogootPort] = provides[LogootPort]
 
-  var identifierTable: mutable.ListBuffer[(Int, Int, Int)] = mutable.ListBuffer.empty
+  var identifierTable = new IdentifierTable //mutable.ListBuffer[(Int, Int, Int)] = mutable.ListBuffer.empty
+
   var clock: Int = 0
-  var cemetery = scala.collection.mutable.HashMap.empty[Int,Int]
+  var cemetery = new Cemetery
+  var document = new Document
 
   /* Logoot events */
   ctrl uponEvent {
@@ -99,22 +101,15 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     id
   }
 
-  def execute(patch: ListBuffer[Any]): Unit = {
+  def execute(patch: Patch): Unit = {
     for(op <- patch){
       op match {
         case in: Insert =>
-          //degree := cemetery.get(id) + 1;
-          var degree = cemetery.get(in.id)
-          degree match {
-            case None => println("value not present in cemetery")
-            case Some(deg) =>
-              // raise degree by one according to algorithm
-              // this can't be done inline for degree because the return value is Optional
-              deg += 1
-              if (deg == 1) {
-                val position = identifierTable.find(_._1 == in.id).get._1
-                //document.insert(position, content);
-              }
+          val degree: Int = cemetery.get(in.id) + 1
+          if (degree == 1) {
+            val position = identifierTable.binarySearch(in.id)
+            document.insert(position, in.content)
+            identifierTable.insert(position,in.id)
           }
       }
     }
