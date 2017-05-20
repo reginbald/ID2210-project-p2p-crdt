@@ -31,15 +31,38 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
 
   // Todo remove site will use self
   def generateLineId(p: LineId, q: LineId, N: Int, boundary: Int, site: KAddress): LineId = {
-    null
+    var list:mutable.ListBuffer[Position] = new mutable.ListBuffer[Position]
+   // var index = 0
+   // var interval = 0
+   // while (interval < N){ // Finds a place for N identifiers
+   //   index += 1
+   //   interval = prefix(q, index) - prefix(p, index) - 1;
+   // }
+   // var step = math.min(interval/N, boundary)
+   // var r = prefix(p, index)
+//
+   // for (j <-1 to N ){ // Constructs N identifiers
+   //   list ++= constructId(r + Random(1, step), p, q, site).positions
+   //   r += step;
+   // }
+    new LineId(list)
   }
+
+  //def prefix(): Int = {
+//
+  //}
+//
+  //def Random(start: Int, end: Int): Int ={
+//
+  //}
+
 
   // Todo remove site will use self
   def constructId(r: mutable.ListBuffer[Int], p: LineId, q: LineId, site: KAddress): LineId = {
     val id = new LineId(mutable.ListBuffer.empty)
     for( i <- 1 to r.size){
       val d = r(i)
-      var s = KAddress
+      var s: KAddress = null
       var c = mutable.Map.empty[KAddress, Int]
       if(d == p.positions(i).digit){
         s = p.positions(i).siteId
