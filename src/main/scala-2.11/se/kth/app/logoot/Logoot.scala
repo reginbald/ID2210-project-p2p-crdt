@@ -18,6 +18,10 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   var identifierTable: mutable.ListBuffer[(Int, Int, Int)] = mutable.ListBuffer.empty
   var clock: Int = 0/*mutable.Map[KAddress, Int] = mutable.Map.empty[KAddress, Int]*/
 
+  //val self: KAddress = init match {
+  //  case Init(s: KAddress) => s
+  //}
+
   /* Logoot events */
   ctrl uponEvent {
     case _:Start => handle {
@@ -37,14 +41,13 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     var interval = 0
     while (interval < N){ // Finds a place for N identifiers
       index += 1
-      interval = prefix_for_interval(q, index) - prefix_for_interval(p, index) - 1
-      print(interval)
+      interval = toBase10(prefix(q, index)) - toBase10(prefix(p, index)) - 1
     }
-    var step = math.min(interval/N, boundary)
+    var step = math.min(interval.toFloat/N, boundary).toInt
     var r = prefix(p, index)
-    for (j <- 1 to N ){ // Constructs N identifiers
+    for (_ <- 1 to N ){ // Constructs N identifiers
       var rand:ListBuffer[Int] = ListBuffer.empty[Int]
-      rand += Random(1, step)
+      rand += Random(0, step)
       list += constructId(r ++ rand, p, q, site)
       r += step;
     }
@@ -60,23 +63,23 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   def fromBase10(num: Int): ListBuffer[Int] = {
+    var tmp = num
     var digits: ListBuffer[Int] = ListBuffer.empty[Int]
-
-    digits
-  }
-
-  def prefix_for_interval(p: LineId, index: Int): Int = { // Todo check if correct
-    var out = 0
-    for (i <- 0 to index - 1) {
-      out = p.positions(i).digit * math.pow(10, i).toInt
+    while (tmp != 0){
+      digits += tmp % 100
+      tmp /= 100
     }
-    out
+    digits
   }
 
   def prefix(p: LineId, index: Int): mutable.ListBuffer[Int] = { // Todo check if correct
     var out: mutable.ListBuffer[Int] = new mutable.ListBuffer[Int]
     for (i <- 0 to index - 1) {
-      out += p.positions(i).digit
+      if (i >= p.positions.size){
+        out += 0
+      } else {
+        out += p.positions(i).digit
+      }
     }
     out
   }
@@ -93,21 +96,17 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     for( i <- 0 to r.size - 1){
       val d = r(i)
       var s: KAddress = null
-      var c:Int = 0 /*mutable.Map.empty[KAddress, Int]*/
+      var c:Int = 0
       if(p.positions.size > i && d == p.positions(i).digit){
         s = p.positions(i).siteId
-        c = q.positions(i).clock
+        c = p.positions(i).clock
       } else if (q.positions.size > i && d == q.positions(i).digit) {
         s = q.positions(i).siteId
         c = q.positions(i).clock
       } else {
-        s = site // Todo change to self
+        s = site
         c = clock
         clock += 1
-        //clock.get(site) match { // Todo check if works
-        //  case Some(v) => clock(site) = v + 1
-        //  case None => println("Got nothing")
-        //}
       }
       id.positions += new Position(d, s, c)
     }

@@ -1,21 +1,22 @@
 package se.kth.app.logoot;
 
 import org.junit.Test;
+import scala.collection.Seq;
+import scala.collection.mutable.ArraySeq;
 import scala.collection.mutable.ListBuffer;
 import scala.collection.mutable.Map;
 import se.kth.app.sim.ScenarioSetup;
+import se.sics.kompics.Kompics;
 import se.sics.kompics.network.Address;
 import se.sics.kompics.sl.Init;
 import se.sics.ktoolbox.util.network.KAddress;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public class TestLogoot {
     @Test
     public void CreateCorrectLineId() {
-        Logoot l = new Logoot(new Init<Logoot>(null));
+
+        Logoot l = new Logoot(null);
 
         KAddress node1 = ScenarioSetup.getNodeAdr("127.0.0.1", 1);
         KAddress node3 = ScenarioSetup.getNodeAdr("127.0.0.1", 3);
@@ -35,7 +36,7 @@ public class TestLogoot {
         LineId p = new LineId(pPos);
         LineId q = new LineId(qPos);
 
-        ListBuffer<LineId> out = l.generateLineId(p, q,3, 10, node1);
+        ListBuffer<LineId> out = l.generateLineId(p, q,10, 10, node1);
 
         System.out.print(out.toString());
     }
