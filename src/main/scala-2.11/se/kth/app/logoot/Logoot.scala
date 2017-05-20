@@ -111,6 +111,13 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
             document.insert(position, in.content)
             identifierTable.insert(position,in.id)
           }
+          else {
+            cemetery.set(in.id, degree)
+          }
+        case del:Remove =>
+          //position := idT able.binarySearch(id);
+          val position = identifierTable.binarySearch(del.id)
+          if (identifierTable.)
       }
     }
   }
