@@ -2,7 +2,6 @@ package se.kth.app.sim.ping;
 
 import org.junit.Assert;
 import org.junit.Test;
-import se.kth.app.sim.ScenarioGen;
 import se.kth.app.sim.ScenarioSetup;
 import se.kth.app.sim.SimulationResultMap;
 import se.kth.app.sim.SimulationResultSingleton;
@@ -16,7 +15,7 @@ public class PingTest {
     @Test
     public void AllCorrectEventuallyAllDeliver() {
         SimulationScenario.setSeed(ScenarioSetup.scenarioSeed());
-        SimulationScenario simpleBootScenario = ScenarioGen.simpleBoot();
+        SimulationScenario simpleBootScenario = PingTestScenarioGen.simpleBoot();
         simpleBootScenario.simulate(LauncherComp.class);
 
         int node1_sent = res.get("1sent", Integer.class);
@@ -64,7 +63,7 @@ public class PingTest {
     @Test
     public void CorrectNodeSendAllCorrectNodesDeliver() {
         SimulationScenario.setSeed(ScenarioSetup.scenarioSeed());
-        SimulationScenario simpleBootScenario = ScenarioGen.killOne();
+        SimulationScenario simpleBootScenario = PingTestScenarioGen.killOne();
         simpleBootScenario.simulate(LauncherComp.class);
 
         int node1_sent = res.get("1sent", Integer.class);
@@ -113,7 +112,7 @@ public class PingTest {
     @Test
     public void CorrectNodeDeliverAllCorrectNodesDeliver() {
         SimulationScenario.setSeed(ScenarioSetup.scenarioSeed());
-        SimulationScenario simpleBootScenario = ScenarioGen.killOne();
+        SimulationScenario simpleBootScenario = PingTestScenarioGen.killOne();
         simpleBootScenario.simulate(LauncherComp.class);
 
         int node2_ping = res.get("2ping", Integer.class);

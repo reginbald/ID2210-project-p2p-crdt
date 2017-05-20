@@ -1,13 +1,12 @@
-package se.kth.app.sim
+package se.kth.app.sim.ping
 
 import java.util
 
+import se.kth.app.sim.ScenarioSetup
 import se.kth.sim.compatibility.SimNodeIdExtractor
-import se.kth.system.HostMngrComp
 import se.sics.kompics.network.Address
 import se.sics.kompics.simulator.SimulationScenario
-import se.sics.kompics.simulator.adaptor.Operation
-import se.sics.kompics.simulator.adaptor.Operation1
+import se.sics.kompics.simulator.adaptor.{Operation, Operation1}
 import se.sics.kompics.simulator.adaptor.distributions.extra.BasicIntSequentialDistribution
 import se.sics.kompics.simulator.events.system.{KillNodeEvent, SetupEvent, StartNodeEvent}
 import se.sics.kompics.simulator.network.identifier.IdentifierExtractor
@@ -18,7 +17,7 @@ import se.sics.ktoolbox.util.network.KAddress
 /**
   * Created by reginbald on 26/04/2017.
   */
-object ScenarioGen {
+object PingTestScenarioGen {
   val systemSetupOp = new Operation[SetupEvent]() {
     override def generate = new SetupEvent() {
       override def getIdentifierExtractor: IdentifierExtractor = new SimNodeIdExtractor
@@ -43,9 +42,9 @@ object ScenarioGen {
 
       override def getNodeAddress: Address = selfAdr
 
-      override def getComponentDefinition: Class[HostMngrComp] = classOf[HostMngrComp]
+      override def getComponentDefinition: Class[PingTestManager] = classOf[PingTestManager]
 
-      override def getComponentInit: Init[HostMngrComp] = new Init(
+      override def getComponentInit: Init[PingTestManager] = new Init(
         selfAdr,
         ScenarioSetup.bootstrapServer,
         ScenarioSetup.croupierOId

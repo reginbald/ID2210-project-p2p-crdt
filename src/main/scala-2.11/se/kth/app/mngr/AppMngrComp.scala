@@ -90,7 +90,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
 
   private def connectLogootComp() {
     logger.info("connecting logoot component")
-    connect(logootComp.getPositive(classOf[CausalOrderReliableBroadcast]), causalBroadcastComp.getNegative(classOf[CausalOrderReliableBroadcast]), Channel.TWO_WAY)
+    connect(causalBroadcastComp.getPositive(classOf[CausalOrderReliableBroadcast]), logootComp.getNegative(classOf[CausalOrderReliableBroadcast]), Channel.TWO_WAY)
   }
 
   private def connectAppComp() {
@@ -101,7 +101,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
     connect(logootComp.getPositive(classOf[LogootPort]), appComp.getNegative(classOf[LogootPort]), Channel.TWO_WAY)
   }
 
-  private def connectTestClient(): Unit ={
+  private def connectTestClient() ={
     logger.info("Connecting Test Client Component")
     connect(client.getNegative(classOf[Timer]), extPorts.timer, Channel.TWO_WAY)
     connect(client.getNegative(classOf[CroupierPort]), extPorts.croupier, Channel.TWO_WAY)

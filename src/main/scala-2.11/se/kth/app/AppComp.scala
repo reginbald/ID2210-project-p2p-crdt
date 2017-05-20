@@ -2,7 +2,7 @@ package se.kth.app
 
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events._
-import se.kth.app.ports.{AppPort, CausalOrderReliableBroadcast, PerfectLink}
+import se.kth.app.ports.{AppPort, CausalOrderReliableBroadcast, LogootPort, PerfectLink}
 import se.kth.app.test.{Ping, Pong}
 import se.sics.kompics.Start
 import se.sics.kompics.sl._
@@ -19,6 +19,7 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
   val timerPort: PositivePort[Timer] = requires[Timer]
   val pLinkPort: PositivePort[PerfectLink] = requires[PerfectLink]
   val broadcastPort: PositivePort[CausalOrderReliableBroadcast] = requires[CausalOrderReliableBroadcast]
+  val logootPort: PositivePort[LogootPort] = requires[LogootPort]
   //**************************************************************************
 
   private val self = init match {
