@@ -102,7 +102,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   def execute(patch: Patch): Unit = {
-    for(op <- patch){
+    for(op <- patch.operations){
       op match {
         case in: Insert =>
           val degree: Int = cemetery.get(in.id) + 1
@@ -117,7 +117,6 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
         case del:Remove =>
           //position := idT able.binarySearch(id);
           val position = identifierTable.binarySearch(del.id)
-          if (identifierTable.)
       }
     }
   }
