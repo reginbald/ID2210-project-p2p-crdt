@@ -53,7 +53,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       var rand:ListBuffer[Int] = ListBuffer.empty[Int]
       rand += Random(0, step)
       list += constructId(r ++ rand, p, q, site)
-      r += step;
+      r += step
     }
     list
   }
@@ -131,8 +131,17 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
             cemetery.set(in.id, degree)
           }
         case del:Remove =>
-          //position := idT able.binarySearch(id);
+          var degree = 0
           val position = identifierTable.binarySearch(del.id)
+          if (identifierTable.getId(position) == del.id) {
+            document.remove(position,del.content)
+            identifierTable.remove(position, del.id)
+            degree = 0
+          }
+          else {
+            degree = cemetery.get(del.id) - 1
+          }
+          cemetery.set(del.id, degree)
       }
     }
   }
