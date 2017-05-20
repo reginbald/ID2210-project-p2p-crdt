@@ -1,7 +1,7 @@
 package se.kth.app.logoot
 
 import com.typesafe.scalalogging.StrictLogging
-import se.kth.app.events.Logoot_Insert
+import se.kth.app.events.{Logoot_Deliver, Logoot_Insert}
 import se.kth.app.ports.{CausalOrderReliableBroadcast, LogootPort}
 import se.sics.kompics.Start
 import se.sics.kompics.sl.{ComponentDefinition, Init, NegativePort, PositivePort, handle}
@@ -28,9 +28,12 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       logger.info("--- Logoot is starting ---")
     }
   }
+
   nwcb uponEvent {
-    case Logoot_Insert(payload) => handle {
-      logger.info("logoot received insert")
+    case Logoot_Deliver(patch:Patch) => handle {
+      logger.info("logoot received patch")
+      //execute(patch)
+      //HB.add(patch
     }
   }
 

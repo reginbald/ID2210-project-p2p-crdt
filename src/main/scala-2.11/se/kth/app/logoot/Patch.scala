@@ -7,6 +7,6 @@ import scala.collection.mutable.ListBuffer
 /**
   * Created by reginbald on 20/05/2017.
   */
-class Patch(val id: UUID, operations: ListBuffer[Operation]) {
+class Patch(val id: UUID, degree: Int, operations: ListBuffer[Operation]) {
 
 }
