@@ -1,6 +1,7 @@
 package se.kth.app.logoot
 
 import com.typesafe.scalalogging.StrictLogging
+import se.kth.app.broadcast.NoWaitCausalBroadcast
 import se.kth.app.events.Logoot_Insert
 import se.kth.app.ports.{CausalOrderReliableBroadcast, LogootPort}
 import se.sics.kompics.Start
@@ -16,7 +17,8 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   val rb: NegativePort[LogootPort] = provides[LogootPort]
 
   var identifierTable: mutable.ListBuffer[(Int, Int, Int)] = mutable.ListBuffer.empty
-  var clock: Int = 0/*mutable.Map[KAddress, Int] = mutable.Map.empty[KAddress, Int]*/
+  var clock: Int = 0
+  var cemetery = scala.collection.mutable.HashMap.empty[Int,Int]
 
   /* Logoot events */
   ctrl uponEvent {
@@ -31,44 +33,27 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   // Todo remove site will use self
-  def generateLineId(p: LineId, q: LineId, N: Int, boundary: Int, site: KAddress): ListBuffer[LineId] = {
-    var list:mutable.ListBuffer[LineId] = new mutable.ListBuffer[LineId]
+  def generateLineId(p: LineId, q: LineId, N: Int, boundary: Int, site: KAddress): LineId = {
+    var list:mutable.ListBuffer[Position] = new mutable.ListBuffer[Position]
     var index = 0
     var interval = 0
     while (interval < N){ // Finds a place for N identifiers
       index += 1
-      interval = prefix_for_interval(q, index) - prefix_for_interval(p, index) - 1
-      print(interval)
+      interval = prefix_for_interval(q, index) - prefix_for_interval(p, index) - 1;
     }
     var step = math.min(interval/N, boundary)
     var r = prefix(p, index)
-    for (j <- 1 to N ){ // Constructs N identifiers
-      var rand:ListBuffer[Int] = ListBuffer.empty[Int]
-      rand += Random(1, step)
-      list += constructId(r ++ rand, p, q, site)
+    for (j <-1 to N ){ // Constructs N identifiers
+      list ++= constructId(r += Random(1, step), p, q, site).positions
       r += step;
     }
-    list
-  }
-
-  def toBase10(digits: mutable.ListBuffer[Int]): Int ={
-    var out: Int = 0
-    for(i <- 0 to digits.size -1){
-      out = digits(i) * math.pow(10, i).toInt
-    }
-    out
-  }
-
-  def fromBase10(num: Int): ListBuffer[Int] = {
-    var digits: ListBuffer[Int] = ListBuffer.empty[Int]
-
-    digits
+    new LineId(list)
   }
 
   def prefix_for_interval(p: LineId, index: Int): Int = { // Todo check if correct
     var out = 0
     for (i <- 0 to index - 1) {
-      out = p.positions(i).digit * math.pow(10, i).toInt
+      out += p.positions(i).digit * 10 ^ i
     }
     out
   }
@@ -112,5 +97,26 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       id.positions += new Position(d, s, c)
     }
     id
+  }
+
+  def execute(patch: ListBuffer[Any]): Unit = {
+    for(op <- patch){
+      op match {
+        case in: Insert =>
+          //degree := cemetery.get(id) + 1;
+          var degree = cemetery.get(in.id)
+          degree match {
+            case None => println("value not present in cemetery")
+            case Some(deg) =>
+              // raise degree by one according to algorithm
+              // this can't be done inline for degree because the return value is Optional
+              deg += 1
+              if (deg == 1) {
+                val position = identifierTable.find(_._1 == in.id).get._1
+                //document.insert(position, content);
+              }
+          }
+      }
+    }
   }
 }
