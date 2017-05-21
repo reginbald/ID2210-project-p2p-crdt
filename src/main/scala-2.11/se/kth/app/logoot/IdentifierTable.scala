@@ -9,7 +9,7 @@ class IdentifierTable {
   private var table:ListBuffer[LineId] = new ListBuffer[LineId]
 
   table.insert(0, new LineId(ListBuffer[Position](new Position(0, null, 0))))
-  table.insert(1, new LineId(ListBuffer[Position](new Position(Int.MaxValue, null, 0))))
+  table.insert(1, new LineId(ListBuffer[Position](new Position(100, null, 0))))
 
   def binarySearch(key: LineId): Int = {
     var out: Int = -1
@@ -33,19 +33,29 @@ class IdentifierTable {
     out
   }
 
-  def getUpperLineId(index: Int): LineId ={
-    var out: LineId = null
-    if (table.size - 1 < index || table.size - 1 < index + 1) out = getId(table.size - 1)
-    else out = getId(index + 1)
-    out
+  def getBounds(index:Int): (LineId, LineId) = {
+    if (index >= table.size - 1)
+      return (getId(table.size - 2), getId(table.size - 1))
+    else if (index <= 0)
+      return (getId(0), getId(1))
+    else
+      return (getId(index - 1), getId(index + 1))
   }
 
-  def getLowerLineId(index: Int): LineId ={
-    var out: LineId = null
-    if (0 > index || 0 > index - 1) out = getId(0)
-    else out = getId(index - 1)
-    out
-  }
+  //def getUpperLineId(index: Int): LineId ={
+  //  var out: LineId = null
+  //  if (table.size - 1 < index || table.size - 1 < index + 1) out = getId(table.size - 1)
+  //  else out = getId(index + 1)
+  //  out
+  //}
+//
+  //def getLowerLineId(index: Int): LineId ={
+  //  var out: LineId = null
+  //  if (0 > index - 1) out = getId(0)
+  //  else if (index - 1 == table.size) getId(index - 2)
+  //  else out = getId(index - 1)
+  //  out
+  //}
 
   def insert(index: Int, id: LineId) = {
     table.insert(index, id)

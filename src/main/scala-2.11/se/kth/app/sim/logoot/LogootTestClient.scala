@@ -74,16 +74,18 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   croupier uponEvent {
     case _:CroupierSample[_] => handle {
-      if(patchCounter < 5){
-        logger.info("Sending Patch Command")
-        patchCounter += 1
-        res.put(self.getId + "patch", patchCounter)
-        trigger(AppIn(Logoot_Do(patchCounter, patch)) -> appPort)
-      } else if (requestDocOnce == 0) {
-        logger.info("Sending Doc Request Command")
-        requestDocOnce += 1
+      val tmp = self.getId.toString
+      if(tmp.equals("1")) {
+        if(patchCounter < 5){
+          logger.info("Sending Patch Command")
+          patchCounter += 1
+          res.put(self.getId + "patch", patchCounter)
+          trigger(AppIn(Logoot_Do(patchCounter, patch)) -> appPort)
+        } else if (requestDocOnce == 0) {
+          logger.info("Sending Doc Request Command")
+          requestDocOnce += 1
+        }
       }
-
     }
   }
 

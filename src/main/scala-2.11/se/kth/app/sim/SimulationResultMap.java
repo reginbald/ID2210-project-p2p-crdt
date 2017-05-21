@@ -27,4 +27,5 @@ package se.kth.app.sim;
 public interface SimulationResultMap {
     public void put(String key, Object o);
     public <T> T get(String key, Class<T> tpe);
+    public String getString(String key);
 }

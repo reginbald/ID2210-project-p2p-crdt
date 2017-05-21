@@ -35,8 +35,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   logootPort uponEvent {
     case Logoot_Do(line: Int, patch:Patch) => handle {
       logger.info("logoot received patch from client")
-      val p:LineId = identifierTable.getLowerLineId(line)
-      val q:LineId = identifierTable.getUpperLineId(line)
+      val (p:LineId, q:LineId)= identifierTable.getBounds(line)
       val N:Int = patch.operations.size
       val ids:ListBuffer[LineId] = generateLineId(p, q, N, 10, self)
 
@@ -104,6 +103,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
 
   // Todo remove site will use self
   def generateLineId(p: LineId, q: LineId, N: Int, boundary: Int, site: KAddress): ListBuffer[LineId] = {
+    logger.info("logoot generating line ids")
     var list:mutable.ListBuffer[LineId] = new mutable.ListBuffer[LineId]
     var index = 0
     var interval = 0
@@ -182,6 +182,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   def execute(patch: Patch): Unit = {
+    logger.info("logoot executing patch")
     for(op <- patch.operations){
       op match {
         case in: Insert =>

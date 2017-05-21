@@ -1,7 +1,6 @@
 package se.kth.app.logoot
 
 import scala.collection.mutable
-import scala.util.control.Breaks._
 
 /**
   * Created by reginbald on 17/05/2017.

@@ -69,4 +69,8 @@ public class SimulationResultSingleton implements SimulationResultMap {
         return (T) entries.get(key);
     }
 
+    public String getString(String key) {
+        return (String) entries.get(key);
+    }
+
 }
