@@ -42,9 +42,9 @@ object PingTestScenarioGen {
 
       override def getNodeAddress: Address = selfAdr
 
-      override def getComponentDefinition: Class[PingTestManager] = classOf[PingTestManager]
+      override def getComponentDefinition: Class[PingTestHostManager] = classOf[PingTestHostManager]
 
-      override def getComponentInit: Init[PingTestManager] = new Init(
+      override def getComponentInit: Init[PingTestHostManager] = new Init(
         selfAdr,
         ScenarioSetup.bootstrapServer,
         ScenarioSetup.croupierOId

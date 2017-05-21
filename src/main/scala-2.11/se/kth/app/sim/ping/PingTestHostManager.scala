@@ -18,7 +18,7 @@ import se.sics.ktoolbox.util.overlays.view.OverlayViewUpdatePort
 /**
   * Created by reginbald on 20/05/2017.
   */
-class PingTestManager(init: Init[PingTestManager]) extends ComponentDefinition with StrictLogging {
+class PingTestHostManager(init: Init[PingTestHostManager]) extends ComponentDefinition with StrictLogging {
   //*****************************CONNECTIONS**********************************
   private val timerPort: Positive[Timer] = requires[Timer]
   private val networkPort: Positive[Network] = requires[Network]
@@ -52,7 +52,7 @@ class PingTestManager(init: Init[PingTestManager]) extends ComponentDefinition w
 
   private def createApp() : Component = {
     val extPorts: ExtPort = new ExtPort(timerPort, networkPort, overlayMngrComp.getPositive(classOf[CroupierPort]), overlayMngrComp.getNegative(classOf[OverlayViewUpdatePort]))
-    return create(classOf[AppMngrComp], Init[AppMngrComp](extPorts, selfAdr, croupierId))
+    return create(classOf[PingTestAppManager], Init[PingTestAppManager](extPorts, selfAdr, croupierId))
   }
 
   private def connectApp() {
