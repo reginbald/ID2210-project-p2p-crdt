@@ -1,16 +1,20 @@
 package se.kth.app.sim.logoot
 
+import java.util.UUID
+
 import com.typesafe.scalalogging.StrictLogging
-import se.kth.app.events.{AppIn, AppOut}
+import se.kth.app.events._
+import se.kth.app.logoot.{Insert, Operation}
 import se.kth.app.ports.AppPort
 import se.kth.app.sim.{SimulationResultMap, SimulationResultSingleton}
-import se.kth.app.test.{Ping, Pong}
 import se.sics.kompics.Start
 import se.sics.kompics.sl.{ComponentDefinition, Init, PositivePort, handle}
 import se.sics.kompics.timer.Timer
 import se.sics.ktoolbox.croupier.CroupierPort
 import se.sics.ktoolbox.croupier.event.CroupierSample
 import se.sics.ktoolbox.util.network.KAddress
+
+import scala.collection.mutable.ListBuffer
 
 /**
   * Created by reginbald on 21/05/2017.
@@ -27,18 +31,24 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     case Init(s: KAddress) => s
   }
 
-  var counter:Int = 0
-  var ping:Int = 0
-  var pong:Int = 0
+  var patchCounter:Int = 0
+  var undo:Int = 0 // todo
+  var redo:Int = 0 // todo
+  var requestDocOnce:Int = 0
+
+  var patch:se.kth.app.logoot.Patch = new se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
 
 
   ctrl uponEvent {
     case _: Start => handle {
       logger.info("Starting test client")
 
-      res.put(self.getId + "sent", counter)
-      res.put(self.getId + "ping", ping)
-      res.put(self.getId + "pong", pong)
+      res.put(self.getId + "patch", patchCounter)
+      res.put(self.getId + "doc", "")
+
+
+      patch.operations += new Insert(null, "mamma mia")
+
 
       //val spt = new ScheduleTimeout(1000);
       //val timeout = new PingTimeout(spt)
@@ -49,15 +59,9 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   }
 
   appPort uponEvent {
-    case AppOut(src:KAddress, _:Ping) => handle {
-      logger.info(self + " - Got ping from: " + src + " with id: " + id)
-      ping += 1
-      res.put(self.getId + "ping", ping)
-    }
-    case AppOut(src:KAddress, _:Pong) => handle {
-      logger.info(self + " - Got pong from: " + src + " with id: " + id)
-      pong += 1
-      res.put(self.getId + "pong", pong)
+    case AppOut(src:KAddress, Logoot_Doc(doc:String)) => handle {
+      logger.info(self + " - Got document")
+      res.put(self.getId + "doc", doc)
     }
   }
 
@@ -70,11 +74,14 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   croupier uponEvent {
     case _:CroupierSample[_] => handle {
-      if(counter < 5){
-        logger.info("Sending Command")
-        counter += 1
-        res.put(self.getId + "sent", counter);
-        trigger(AppIn(Ping(self, counter)) -> appPort)
+      if(patchCounter < 5){
+        logger.info("Sending Patch Command")
+        patchCounter += 1
+        res.put(self.getId + "patch", patchCounter)
+        trigger(AppIn(Logoot_Do(patchCounter, patch)) -> appPort)
+      } else if (requestDocOnce == 0) {
+        logger.info("Sending Doc Request Command")
+        requestDocOnce += 1
       }
 
     }

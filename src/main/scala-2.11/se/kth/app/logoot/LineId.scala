@@ -8,25 +8,55 @@ import scala.util.control.Breaks._
   */
 class LineId(val positions: mutable.ListBuffer[Position]) {
   def lessThan(that: LineId): Boolean = {
-    var out:Boolean = false;
+    var out:Boolean = false
+    var same:Int = 0
 
-    for (i <- 0 to positions.size -1){
-      if (positions(i).digit < that.positions(i).digit) {
+    for (i <- positions.indices){
+      if (i >= that.positions.size) return out
+      else if (positions(i).digit < that.positions(i).digit) {
         out = true
-        break
+        return true
+      }
+      else if (positions(i).digit == that.positions(i).digit && positions(i).siteId == null && that.positions(i).siteId != null){
+        out = true
+        return true
+      }
+      else if (positions(i).digit == that.positions(i).digit && positions(i).siteId == null && that.positions(i).siteId == null &&
+        positions(i).clock < that.positions(i).clock){
+        out = true
+        return true
+      }
+      else if (positions(i).digit == that.positions(i).digit &&
+        positions(i).siteId == null && that.positions(i).siteId == null &&
+        positions(i).clock == that.positions(i).clock) {
+        same += 1
+      }
+      else if (positions(i).digit == that.positions(i).digit && positions(i).siteId == null && that.positions(i).siteId == null){
+        out = false
+        //continue
+      }
+      else if (positions(i).digit == that.positions(i).digit && positions(i).siteId != null && that.positions(i).siteId == null){
+        out = false
+        //continue
       }
       else if (positions(i).digit == that.positions(i).digit &&
         positions(i).siteId.getId.asInstanceOf[Int] < that.positions(i).siteId.getId.asInstanceOf[Int]){
         out = true
-        break
+        return true
       }
       else if (positions(i).digit == that.positions(i).digit &&
         positions(i).siteId.getId.asInstanceOf[Int] == that.positions(i).siteId.getId.asInstanceOf[Int] &&
         positions(i).clock < that.positions(i).clock) {
         out = true
-        break
+        return true
+      } else if (positions(i).digit == that.positions(i).digit &&
+        positions(i).siteId.getId.asInstanceOf[Int] == that.positions(i).siteId.getId.asInstanceOf[Int] &&
+        positions(i).clock == that.positions(i).clock) {
+        same += 1
       }
     }
+    if (same == positions.size && that.positions.size > positions.size) out = true
+
     out
   }
 

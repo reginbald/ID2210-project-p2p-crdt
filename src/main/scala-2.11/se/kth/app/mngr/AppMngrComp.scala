@@ -6,7 +6,7 @@ import se.kth.app.broadcast.{EagerReliableBroadcast, GossipingBestEffortBroadcas
 import se.kth.app.links.PerfectPointToPointLink
 import se.kth.app.logoot.Logoot
 import se.kth.app.ports._
-import se.kth.app.sim.ping.PingTestClient
+import se.kth.app.sim.logoot.LogootTestClient
 import se.kth.croupier.util.NoView
 import se.sics.kompics.{Channel, Negative, Positive, Start}
 import se.sics.kompics.network.Network
@@ -40,7 +40,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   //******************************AUX_STATE***********************************
   private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
   //******************************FOR_TEST************************************
-  private val client = create(classOf[PingTestClient], Init[PingTestClient](self))
+  private val client = create(classOf[LogootTestClient], Init[LogootTestClient](self))
 
   //**************************************************************************
 

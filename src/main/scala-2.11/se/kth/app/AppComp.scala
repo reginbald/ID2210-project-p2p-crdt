@@ -2,6 +2,7 @@ package se.kth.app
 
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events._
+import se.kth.app.logoot.Document
 import se.kth.app.ports.{AppPort, CausalOrderReliableBroadcast, LogootPort, PerfectLink}
 import se.kth.app.test.{Ping, Pong}
 import se.sics.kompics.Start
@@ -35,6 +36,24 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
   appPort uponEvent {
     case AppIn(payload: Ping) => handle {
       trigger(CORB_Broadcast(payload) -> broadcastPort)
+    }
+    case AppIn(logoot: Logoot_Do) => handle {
+      trigger(logoot -> logootPort)
+    }
+    case AppIn(logoot: Logoot_Undo) => handle {
+      trigger(logoot -> logootPort)
+    }
+    case AppIn(logoot: Logoot_Redo) => handle {
+      trigger(logoot -> logootPort)
+    }
+    case AppIn(logoot: Logoot_Doc) => handle {
+      trigger(logoot -> logootPort)
+    }
+  }
+
+  logootPort uponEvent {
+    case msg:Logoot_Doc => handle {
+      trigger(AppOut(self, msg) -> appPort)
     }
   }
 

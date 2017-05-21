@@ -33,10 +33,10 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   logootPort uponEvent {
-    case Logoot_Do(start: Int, end:Int, patch:Patch) => handle {
+    case Logoot_Do(line: Int, patch:Patch) => handle {
       logger.info("logoot received patch from client")
-      val p:LineId = identifierTable.getId(start)
-      val q:LineId = identifierTable.getId(end)
+      val p:LineId = identifierTable.getLowerLineId(line)
+      val q:LineId = identifierTable.getUpperLineId(line)
       val N:Int = patch.operations.size
       val ids:ListBuffer[LineId] = generateLineId(p, q, N, 10, self)
 
@@ -53,16 +53,20 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       logger.info("logoot received redo from client")
       trigger(CORB_Broadcast(redo), nwcb)
     }
+    case redo:Logoot_Doc => handle {
+      logger.info("logoot received document request from client")
+      trigger(Logoot_Doc(document.flatten()), logootPort)
+    }
   }
 
   nwcb uponEvent {
-    case Logoot_Patch(patch:Patch) => handle {
+    case CORB_Deliver(src:KAddress, Logoot_Patch(patch:Patch)) => handle {
       logger.info("logoot received patch")
       execute(patch)
       histBuff.add(patch)
       patch.degree = 1
     }
-    case Logoot_Undo(patchId: UUID) => handle {
+    case CORB_Deliver(src:KAddress, Logoot_Undo(patchId: UUID)) => handle {
       logger.info("logoot received undo")
       histBuff.get(patchId) match {
         case Some(patch) =>
@@ -73,7 +77,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
         case None => logger.info("patch not found")
       }
     }
-    case Logoot_Redo(patchId: UUID) => handle {
+    case CORB_Deliver(src:KAddress, Logoot_Redo(patchId: UUID)) => handle {
       logger.info("logoot received redo")
       histBuff.get(patchId) match {
         case Some(patch) =>
@@ -183,7 +187,8 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
         case in: Insert =>
           val degree: Int = cemetery.get(in.id) + 1
           if (degree == 1) {
-            val position = identifierTable.binarySearch(in.id)
+            var position = identifierTable.binarySearch(in.id)
+            if( position < 0) position = math.abs(position) - 1
             document.insert(position, in.content)
             identifierTable.insert(position,in.id)
           }
