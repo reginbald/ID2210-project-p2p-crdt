@@ -6,7 +6,10 @@ import scala.collection.mutable.ListBuffer
   * Created by reginbald on 20/05/2017.
   */
 class IdentifierTable {
-  private var table:ListBuffer[LineId] = new ListBuffer[LineId]//(new LineId(ListBuffer[Position](new Position())))
+  private var table:ListBuffer[LineId] = new ListBuffer[LineId]
+
+  table.insert(0, new LineId(ListBuffer[Position](new Position(0, null, 0))))
+  table.insert(1, new LineId(ListBuffer[Position](new Position(Int.MaxValue, null, 0))))
 
   def binarySearch(key: LineId): Int = {
     var out: Int = -1
