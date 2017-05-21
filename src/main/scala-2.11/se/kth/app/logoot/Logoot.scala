@@ -52,7 +52,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       logger.info("logoot received redo from client")
       trigger(CORB_Broadcast(redo), nwcb)
     }
-    case redo:Logoot_Doc => handle {
+    case doc:Logoot_Doc => handle {
       logger.info("logoot received document request from client")
       trigger(Logoot_Doc(document.flatten()), logootPort)
     }
@@ -90,7 +90,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   def inverse(patch:Patch): Patch ={
-    val out:Patch = new Patch(patch.id, patch.degree, new ListBuffer[Operation])
+    val out:Patch = Patch(patch.id, patch.degree, new ListBuffer[Operation])
     for (i <- patch.operations.indices){
       patch.operations(i) match {
         case insert:Insert => out.operations += Remove(insert.id, insert.content)

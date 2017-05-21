@@ -8,8 +8,8 @@ import scala.collection.mutable.ListBuffer
 class Document {
   private var doc:ListBuffer[String] = new ListBuffer[String]
 
-  doc.insert(0, "")
-  doc.insert(1, "")
+  doc.insert(0, "-start-")
+  doc.insert(1, "-end-")
 
   def insert(index: Int, content: String) = {
     doc.insert(index, content)

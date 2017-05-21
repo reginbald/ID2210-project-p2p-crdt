@@ -39,17 +39,17 @@ class LineId(val positions: mutable.ListBuffer[Position]) {
         //continue
       }
       else if (positions(i).digit == that.positions(i).digit &&
-        positions(i).siteId.getId.asInstanceOf[Int] < that.positions(i).siteId.getId.asInstanceOf[Int]){
+        positions(i).siteId.getId.toString.toInt < that.positions(i).siteId.getId.toString.toInt ){
         out = true
         return true
       }
       else if (positions(i).digit == that.positions(i).digit &&
-        positions(i).siteId.getId.asInstanceOf[Int] == that.positions(i).siteId.getId.asInstanceOf[Int] &&
+        positions(i).siteId.getId.toString.toInt  == that.positions(i).siteId.getId.toString.toInt  &&
         positions(i).clock < that.positions(i).clock) {
         out = true
         return true
       } else if (positions(i).digit == that.positions(i).digit &&
-        positions(i).siteId.getId.asInstanceOf[Int] == that.positions(i).siteId.getId.asInstanceOf[Int] &&
+        positions(i).siteId.getId.toString.toInt == that.positions(i).siteId.getId.toString.toInt &&
         positions(i).clock == that.positions(i).clock) {
         same += 1
       }

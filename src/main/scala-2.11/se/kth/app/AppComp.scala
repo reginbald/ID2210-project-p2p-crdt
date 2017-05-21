@@ -59,10 +59,8 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
 
   broadcastPort uponEvent {
     case CORB_Deliver(src: KAddress, ping:Ping) => handle {
-      if (!src.equals(self)){
-        trigger(PL_Send(src, Pong(self, ping.id)), pLinkPort)
-        trigger(AppOut(src, ping), appPort)
-      }
+      trigger(PL_Send(src, Pong(self, ping.id)), pLinkPort)
+      trigger(AppOut(src, ping), appPort)
     }
   }
 

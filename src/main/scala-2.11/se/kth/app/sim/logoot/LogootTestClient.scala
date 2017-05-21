@@ -46,10 +46,6 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       res.put(self.getId + "patch", patchCounter)
       res.put(self.getId + "doc", "")
 
-
-      patch.operations += new Insert(null, "mamma mia")
-
-
       //val spt = new ScheduleTimeout(1000);
       //val timeout = new PingTimeout(spt)
       //spt.setTimeoutEvent(timeout)
@@ -78,12 +74,14 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       if(tmp.equals("1")) {
         if(patchCounter < 5){
           logger.info("Sending Patch Command")
+          patch.operations = new ListBuffer[Operation]
+          patch.operations += new Insert(null, " mamma mia " + patchCounter)
           patchCounter += 1
           res.put(self.getId + "patch", patchCounter)
           trigger(AppIn(Logoot_Do(patchCounter, patch)) -> appPort)
-        } else if (requestDocOnce == 0) {
+        } else {
           logger.info("Sending Doc Request Command")
-          requestDocOnce += 1
+          trigger(AppIn(Logoot_Doc(null)) -> appPort)
         }
       }
     }

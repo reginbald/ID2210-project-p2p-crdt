@@ -17,7 +17,6 @@ class IdentifierTable {
     var hi: Int = table.size - 1
     var mid:Int = 0
     while (lo <= hi) {
-      // Key is in a[lo..hi] or not present.
       mid = lo + (hi - lo) / 2
       if (key.lessThan(table(mid))) {
         hi = mid - 1
@@ -26,7 +25,7 @@ class IdentifierTable {
         lo = mid + 1
       }
       else {
-        out = mid
+        return mid
       }
     }
     if (out == -1 ) out = -1 - mid
