@@ -11,6 +11,10 @@ class LineId(val positions: mutable.ListBuffer[Position]) {
     var same:Int = 0
 
     for (i <- positions.indices){
+      if (that.positions(i).digit == 99 && that.positions(i).siteId == null && that.positions(i).clock == null) return true
+      if (positions(i).digit == 99 && positions(i).siteId == null && positions(i).clock == null) return
+
+
       if (i >= that.positions.size) return out
       else if (positions(i).digit < that.positions(i).digit) {
         out = true
@@ -19,6 +23,20 @@ class LineId(val positions: mutable.ListBuffer[Position]) {
       else if (positions(i).digit == that.positions(i).digit && positions(i).siteId == null && that.positions(i).siteId != null){
         out = true
         return true
+      }
+      else if (positions(i).digit == that.positions(i).digit && positions(i).siteId == null && that.positions(i).siteId == null &&
+        positions(i).clock == null && that.positions(i).clock != null){
+        out = true
+        return true
+      }
+      else if (positions(i).digit == that.positions(i).digit && positions(i).siteId == null && that.positions(i).siteId == null &&
+        positions(i).clock == null && that.positions(i).clock == null){
+        same += 1
+      }
+      else if (positions(i).digit == that.positions(i).digit && positions(i).siteId == null && that.positions(i).siteId == null &&
+        positions(i).clock != null && that.positions(i).clock == null){
+        out = false
+        //continue
       }
       else if (positions(i).digit == that.positions(i).digit && positions(i).siteId == null && that.positions(i).siteId == null &&
         positions(i).clock < that.positions(i).clock){

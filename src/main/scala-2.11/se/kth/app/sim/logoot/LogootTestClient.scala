@@ -74,16 +74,15 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       if(tmp.equals("1")) {
         if(patchCounter < 5){
           logger.info("Sending Patch Command")
-          patch.operations = new ListBuffer[Operation]
+          patch = new se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
           patch.operations += new Insert(null, " mamma mia " + patchCounter)
           patchCounter += 1
           res.put(self.getId + "patch", patchCounter)
-          trigger(AppIn(Logoot_Do(patchCounter, patch)) -> appPort)
-        } else {
-          logger.info("Sending Doc Request Command")
-          trigger(AppIn(Logoot_Doc(null)) -> appPort)
+          trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
         }
       }
+      logger.info("Sending Doc Request Command")
+      trigger(AppIn(Logoot_Doc(null)) -> appPort)
     }
   }
 

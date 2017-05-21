@@ -59,13 +59,13 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   nwcb uponEvent {
-    case CORB_Deliver(src:KAddress, Logoot_Patch(patch:Patch)) => handle {
+    case CORB_Deliver(_:KAddress, Logoot_Patch(patch:Patch)) => handle {
       logger.info("logoot received patch")
       execute(patch)
       histBuff.add(patch)
       patch.degree = 1
     }
-    case CORB_Deliver(src:KAddress, Logoot_Undo(patchId: UUID)) => handle {
+    case CORB_Deliver(_:KAddress, Logoot_Undo(patchId: UUID)) => handle {
       logger.info("logoot received undo")
       histBuff.get(patchId) match {
         case Some(patch) =>
@@ -76,7 +76,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
         case None => logger.info("patch not found")
       }
     }
-    case CORB_Deliver(src:KAddress, Logoot_Redo(patchId: UUID)) => handle {
+    case CORB_Deliver(_:KAddress, Logoot_Redo(patchId: UUID)) => handle {
       logger.info("logoot received redo")
       histBuff.get(patchId) match {
         case Some(patch) =>
@@ -115,7 +115,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     var r = prefix(p, index)
     for (_ <- 1 to N ){ // Constructs N identifiers
       var rand:ListBuffer[Int] = ListBuffer.empty[Int]
-      rand += Random(0, step)
+      rand += Random(1, step)
       list += constructId(r ++ rand, p, q, site)
       r += step
     }
@@ -123,9 +123,11 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   def toBase10(digits: mutable.ListBuffer[Int]): Int ={
+    //1.2.3 base 100 is 3*100^0 + 2*100^1 + 1*100^2 = 102.003 in base 10 (decimal)
     var out: Int = 0
-    for(i <- digits.indices){
-      out = digits(i) * math.pow(10, i).toInt
+    for(i <- (digits.size - 1) to 0 by -1){
+      val veldi = (digits.size - 1) - i
+      out += digits(i) * math.pow(10, veldi).toInt
     }
     out
   }
@@ -140,7 +142,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     digits
   }
 
-  def prefix(p: LineId, index: Int): mutable.ListBuffer[Int] = { // Todo check if correct
+  def prefix(p: LineId, index: Int): mutable.ListBuffer[Int] = {
     var out: mutable.ListBuffer[Int] = new mutable.ListBuffer[Int]
     for (i <- 0 until index) {
       if (i >= p.positions.size){
@@ -164,11 +166,11 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     for( i <- r.indices){
       val d = r(i)
       var s: KAddress = null
-      var c:Int = 0
-      if(p.positions.size > i && d == p.positions(i).digit){
+      var c:Integer = 0
+      if(i < p.positions.size && d == p.positions(i).digit){
         s = p.positions(i).siteId
         c = p.positions(i).clock
-      } else if (q.positions.size > i && d == q.positions(i).digit) {
+      } else if (i < q.positions.size && d == q.positions(i).digit) {
         s = q.positions(i).siteId
         c = q.positions(i).clock
       } else {
