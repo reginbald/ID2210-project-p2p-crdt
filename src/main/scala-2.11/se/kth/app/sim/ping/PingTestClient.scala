@@ -35,6 +35,7 @@ class PingTestClient(init: Init[PingTestClient]) extends ComponentDefinition wit
   var counter:Int = 0
   var ping:Int = 0
   var pong:Int = 0
+  var lastSeen:Int = 1
 
 
   ctrl uponEvent {
@@ -54,10 +55,18 @@ class PingTestClient(init: Init[PingTestClient]) extends ComponentDefinition wit
   }
 
   appPort uponEvent {
-    case AppOut(src:KAddress, _:Ping) => handle {
+    case AppOut(src:KAddress, Ping(_:KAddress, counter:Int)) => handle {
       logger.info(self + " - Got ping from: " + src + " with id: " + id)
-      ping += 1
-      res.put(self.getId + "ping", ping)
+      if (self == src) { // Checking for Causal order
+        if (lastSeen == counter){
+          lastSeen += 1
+          ping += 1
+          res.put(self.getId + "ping", ping)
+        }
+      } else {
+        ping += 1
+        res.put(self.getId + "ping", ping)
+      }
     }
     case AppOut(src:KAddress, _:Pong) => handle {
       logger.info(self + " - Got pong from: " + src + " with id: " + id)
