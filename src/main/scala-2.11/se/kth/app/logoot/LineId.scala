@@ -5,8 +5,22 @@ import scala.collection.mutable
 /**
   * Created by reginbald on 17/05/2017.
   */
-class LineId(val positions: mutable.ListBuffer[Position]) {
-  def lessThan(that: LineId): Boolean = {
+class LineId(val positions: mutable.ListBuffer[Position]) extends Ordered[LineId]{
+
+  override def compare(that: LineId): Int = {
+    for(i <- this.positions.indices){
+      if (i >= that.positions.size) return 1
+      if (positions(i).digit == 99 && positions(i).siteId == null && positions(i).clock == null) return 1
+      if (that.positions(i).digit == 99 && that.positions(i).siteId == null && that.positions(i).clock == null) return -1
+      else {
+        val tmp = this.positions(i).compare(that.positions(i))
+        if (tmp != 0) return tmp
+      }
+    }
+    0
+  }
+
+  /*def lessThan(that: LineId): Boolean = {
     var out:Boolean = false
     var same:Int = 0
 
@@ -75,6 +89,5 @@ class LineId(val positions: mutable.ListBuffer[Position]) {
     if (same == positions.size && that.positions.size > positions.size) out = true
 
     out
-  }
-
+  }*/
 }

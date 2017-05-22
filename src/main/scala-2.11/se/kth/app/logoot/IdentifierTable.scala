@@ -18,10 +18,12 @@ class IdentifierTable {
     var mid:Int = 0
     while (lo <= hi) {
       mid = lo + (hi - lo) / 2
-      if (key.lessThan(table(mid))) {
+      //if (key.lessThan(table(mid))) {
+      if(key.compare(table(mid)) < 0) {
         hi = mid - 1
       }
-      else if (table(mid).lessThan(key)) {
+      //else if (table(mid).lessThan(key)) {
+      else if(key.compare(table(mid)) > 0) {
         lo = mid + 1
       }
       else {
