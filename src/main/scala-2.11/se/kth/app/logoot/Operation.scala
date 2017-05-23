@@ -5,6 +5,7 @@ package se.kth.app.logoot
   */
 trait Operation {
   var id: LineId
+  var content: String
 }
-case class Insert(var id: LineId, content:String) extends Operation
-case class Remove(var id: LineId, content:String) extends Operation
+case class Insert(var id: LineId, var content:String) extends Operation
+case class Remove(var id: LineId, var content:String) extends Operation

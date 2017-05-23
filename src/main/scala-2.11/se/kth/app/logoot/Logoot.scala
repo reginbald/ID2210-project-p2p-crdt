@@ -83,7 +83,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       execute(patch)
       histBuff.add(patch)
       patch.degree = 1
-      trigger(Logoot_Done(patch.id), logootPort)
+      trigger(Logoot_Done(patch), logootPort)
     }
     case CORB_Deliver(_:KAddress, Logoot_Undo(patchId: UUID)) => handle {
       logger.info("logoot received undo")

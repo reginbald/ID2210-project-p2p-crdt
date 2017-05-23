@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events._
-import se.kth.app.logoot.{Insert, Operation}
+import se.kth.app.logoot.{Insert, Operation, Remove}
 import se.kth.app.ports.AppPort
 import se.kth.app.sim.{SimulationResultMap, SimulationResultSingleton}
 import se.sics.kompics.Start
@@ -40,6 +40,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   var patch:se.kth.app.logoot.Patch = new se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
 
   var processing: Boolean = false
+  var lastPatch: se.kth.app.logoot.Patch = null
 
 
   ctrl uponEvent {
@@ -62,8 +63,9 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       logger.info(self + " - Got document")
       res.put(self.getId + "doc", doc)
     }
-    case AppOut(src:KAddress, Logoot_Done(id:UUID)) => handle {
+    case AppOut(src:KAddress, Logoot_Done(patch: se.kth.app.logoot.Patch)) => handle {
       logger.info(self + " - done adding patch")
+      lastPatch = patch
       processing = false
     }
   }
@@ -80,8 +82,9 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       val tmp = self.getId.toString
       if(!processing) {
         if(patchCounter < patchTotal){
-          patchCounter += 1
           if (simulation == 0) insert_simulation()
+          if (simulation == 1) remove_simulation()
+          patchCounter += 1
         }
       }
       if (patchCounter == patchTotal){
@@ -97,6 +100,22 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     patch.operations += Insert(null, " mom " + patchCounter)
     patch.operations += Insert(null, " dad " + patchCounter)
     patch.operations += Insert(null, " eric " + patchCounter)
+    res.put(self.getId + "patch", patchCounter)
+    trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
+    processing = true
+  }
+
+  def remove_simulation(): Unit ={
+    logger.info("Sending Patch Command")
+    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
+    if (patchCounter % 2 == 0){
+      patch.operations += Insert(null, " mom " + patchCounter)
+      patch.operations += Insert(null, " dad " + patchCounter)
+      patch.operations += Insert(null, " eric " + patchCounter)
+    } else {
+      patch.operations += Remove(lastPatch.operations(0).id, lastPatch.operations(0).content)
+    }
+
     res.put(self.getId + "patch", patchCounter)
     trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     processing = true

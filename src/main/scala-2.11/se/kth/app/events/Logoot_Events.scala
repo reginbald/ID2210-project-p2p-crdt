@@ -10,7 +10,7 @@ import se.sics.kompics.KompicsEvent
   */
 case class Logoot_Do(line:Int, op: Patch) extends KompicsEvent
 
-case class Logoot_Done(patchId: UUID) extends KompicsEvent
+case class Logoot_Done(patch: Patch) extends KompicsEvent
 
 case class Logoot_Doc(doc: String) extends KompicsEvent
 
