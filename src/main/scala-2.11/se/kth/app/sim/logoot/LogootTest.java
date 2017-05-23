@@ -30,8 +30,11 @@ public class LogootTest {
 
 
 
-        // All should send 5 pings
-        Assert.assertEquals("Node 1 should send 5 pings", 5, node1_patch);
+        // Document at all nodes should be the same after insert
+        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node2_doc);
+        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node3_doc);
+        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node4_doc);
+        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node5_doc);
     }
 }
 

@@ -26,8 +26,8 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   //*****************************CONNECTIONS**********************************
   private val omngrPort = requires[OverlayMngrPort]
   //***************************EXTERNAL_STATE*********************************
-  private val (extPorts, self, croupierId) = init match {
-    case Init(extPorts: ExtPort, self: KAddress, croupierId: OverlayId) => (extPorts, self, croupierId)
+  private val (extPorts, self, croupierId, simulation) = init match {
+    case Init(extPorts: ExtPort, self: KAddress, croupierId: OverlayId, simulation: Int) => (extPorts, self, croupierId, simulation)
   }
   //***************************INTERNAL_STATE*********************************
   private val appComp = create(classOf[AppComp], Init[AppComp](self))
@@ -40,7 +40,7 @@ class AppMngrComp(init: Init[AppMngrComp]) extends ComponentDefinition with Stri
   //******************************AUX_STATE***********************************
   private var pendingCroupierConnReq = None: Option[OMngrCroupier.ConnectRequest]
   //******************************FOR_TEST************************************
-  private val client = create(classOf[LogootTestClient], Init[LogootTestClient](self))
+  private val client = create(classOf[LogootTestClient], Init[LogootTestClient](self, simulation))
 
   //**************************************************************************
 

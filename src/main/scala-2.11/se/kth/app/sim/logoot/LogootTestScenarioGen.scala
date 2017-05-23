@@ -48,7 +48,8 @@ object LogootTestScenarioGen {
       override def getComponentInit: Init[HostMngrComp] = new Init(
         selfAdr,
         ScenarioSetup.bootstrapServer,
-        ScenarioSetup.croupierOId
+        ScenarioSetup.croupierOId,
+        1
       )
 
       override def initConfigUpdate: util.HashMap[String, Object] = {

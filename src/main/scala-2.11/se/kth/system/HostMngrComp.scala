@@ -24,8 +24,8 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with St
   private val timerPort: Positive[Timer] = requires[Timer]
   private val networkPort: Positive[Network] = requires[Network]
   //***************************EXTERNAL_STATE*********************************
-  private val (selfAdr, bootstrapServer, croupierId) = init match {
-    case Init(selfAdr: KAddress, bootstrapServer: KAddress, croupierId: OverlayId) => (selfAdr, bootstrapServer, croupierId)
+  private val (selfAdr, bootstrapServer, croupierId, simulation) = init match {
+    case Init(selfAdr: KAddress, bootstrapServer: KAddress, croupierId: OverlayId, simulation: Int) => (selfAdr, bootstrapServer, croupierId, simulation)
   }
   //***************************INTERNAL_STATE*********************************
   private var bootstrapClientComp = create(classOf[BootstrapClientComp], new BootstrapClientComp.Init(selfAdr, bootstrapServer))
@@ -53,7 +53,7 @@ class HostMngrComp(init: Init[HostMngrComp]) extends ComponentDefinition with St
 
   private def createApp() : Component = {
     val extPorts: ExtPort = new ExtPort(timerPort, networkPort, overlayMngrComp.getPositive(classOf[CroupierPort]), overlayMngrComp.getNegative(classOf[OverlayViewUpdatePort]))
-    return create(classOf[AppMngrComp], Init[AppMngrComp](extPorts, selfAdr, croupierId))
+    return create(classOf[AppMngrComp], Init[AppMngrComp](extPorts, selfAdr, croupierId, simulation))
   }
 
   private def connectApp() {

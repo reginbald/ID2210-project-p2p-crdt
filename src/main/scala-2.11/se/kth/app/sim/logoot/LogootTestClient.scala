@@ -27,8 +27,8 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   private val res:SimulationResultMap = SimulationResultSingleton.getInstance
   //private var timerId: Option[UUID] = None;
 
-  private val self = init match {
-    case Init(s: KAddress) => s
+  private val (self, simulation) = init match {
+    case Init(s: KAddress, sim: Int) => (s, sim)
   }
 
   var patchCounter:Int = 0
@@ -77,7 +77,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   croupier uponEvent {
     case _:CroupierSample[_] => handle {
       val tmp = self.getId.toString
-      if(tmp.equals("1") && !processing) {
+      if(!processing) {
         if(patchCounter < 5){
           logger.info("Sending Patch Command")
           patch = new se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
@@ -91,6 +91,10 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       logger.info("Sending Doc Request Command")
       trigger(AppIn(Logoot_Doc(null)) -> appPort)
     }
+  }
+
+  def insert_simulation(): Unit ={
+
   }
 
   //override def tearDown(): Unit = {
