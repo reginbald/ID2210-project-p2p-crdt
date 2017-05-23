@@ -10,7 +10,7 @@ class LineId(val positions: mutable.ListBuffer[Position]) extends Ordered[LineId
   override def compare(that: LineId): Int = {
     for(i <- this.positions.indices){
       if (i >= that.positions.size) return 1
-      if (positions(i).digit == 99 && positions(i).siteId == null && positions(i).clock == null) return 1
+      if (this.positions(i).digit == 99 && this.positions(i).siteId == null && positions(i).clock == null) return 1
       if (that.positions(i).digit == 99 && that.positions(i).siteId == null && that.positions(i).clock == null) return -1
       else {
         val tmp = this.positions(i).compare(that.positions(i))
