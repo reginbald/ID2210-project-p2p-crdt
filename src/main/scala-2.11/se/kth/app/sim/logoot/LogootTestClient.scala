@@ -32,6 +32,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   }
 
   var patchCounter:Int = 0
+  var patchTotal:Int = 2
   var undo:Int = 0 // todo
   var redo:Int = 0 // todo
   var requestDocOnce:Int = 0
@@ -78,23 +79,27 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     case _:CroupierSample[_] => handle {
       val tmp = self.getId.toString
       if(!processing) {
-        if(patchCounter < 5){
-          logger.info("Sending Patch Command")
-          patch = new se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
-          patch.operations += new Insert(null, " mamma mia " + patchCounter)
+        if(patchCounter < patchTotal){
           patchCounter += 1
-          res.put(self.getId + "patch", patchCounter)
-          trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
-          processing = true
+          if (simulation == 0) insert_simulation()
         }
       }
-      logger.info("Sending Doc Request Command")
-      trigger(AppIn(Logoot_Doc(null)) -> appPort)
+      if (patchCounter == patchTotal){
+        logger.info("Sending Doc Request Command")
+        trigger(AppIn(Logoot_Doc(null)) -> appPort)
+      }
     }
   }
 
   def insert_simulation(): Unit ={
-
+    logger.info("Sending Patch Command")
+    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
+    patch.operations += Insert(null, " mom " + patchCounter)
+    patch.operations += Insert(null, " dad " + patchCounter)
+    patch.operations += Insert(null, " eric " + patchCounter)
+    res.put(self.getId + "patch", patchCounter)
+    trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
+    processing = true
   }
 
   //override def tearDown(): Unit = {

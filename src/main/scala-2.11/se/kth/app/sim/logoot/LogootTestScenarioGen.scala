@@ -37,6 +37,31 @@ object LogootTestScenarioGen {
     }
   }
 
+  val insertNodeOp = new Operation1[StartNodeEvent, Integer]() {
+    override def generate(nodeId: Integer) : StartNodeEvent = new StartNodeEvent() {
+      val selfAdr: KAddress = ScenarioSetup.getNodeAdr("193.0.0." + nodeId, nodeId)
+
+      override def getNodeAddress: Address = selfAdr
+
+      override def getComponentDefinition: Class[HostMngrComp] = classOf[HostMngrComp]
+
+      override def getComponentInit: Init[HostMngrComp] = new Init(
+        selfAdr,
+        ScenarioSetup.bootstrapServer,
+        ScenarioSetup.croupierOId,
+        0
+      )
+
+      override def initConfigUpdate: util.HashMap[String, Object] = {
+        val nodeConfig = new java.util.HashMap[String, Object]
+        nodeConfig.put("system.id", nodeId)
+        nodeConfig.put("system.seed", long2Long(ScenarioSetup.getNodeSeed(nodeId)))
+        nodeConfig.put("system.port", int2Integer(ScenarioSetup.appPort))
+        nodeConfig
+      }
+    }
+  }
+
   val startNodeOp = new Operation1[StartNodeEvent, Integer]() {
     override def generate(nodeId: Integer) : StartNodeEvent = new StartNodeEvent() {
       val selfAdr: KAddress = ScenarioSetup.getNodeAdr("193.0.0." + nodeId, nodeId)
@@ -74,7 +99,7 @@ object LogootTestScenarioGen {
     }
   }
 
-  def simpleBoot: SimulationScenario = {
+  def insertBoot: SimulationScenario = {
     val scenario: SimulationScenario = new SimulationScenario() {
       val systemSetup = new StochasticProcess() {
         {
@@ -93,7 +118,7 @@ object LogootTestScenarioGen {
       val startPeers = new StochasticProcess() {
         {
           eventInterArrivalTime(uniform(1000, 1100))
-          raise(5, startNodeOp, new BasicIntSequentialDistribution(1))
+          raise(5, insertNodeOp, new BasicIntSequentialDistribution(1))
         }
       }
 
