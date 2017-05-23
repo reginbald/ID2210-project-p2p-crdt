@@ -64,6 +64,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       execute(patch)
       histBuff.add(patch)
       patch.degree = 1
+      trigger(Logoot_Done(patch.id), logootPort)
     }
     case CORB_Deliver(_:KAddress, Logoot_Undo(patchId: UUID)) => handle {
       logger.info("logoot received undo")
@@ -105,14 +106,14 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   def generateLineId(p: LineId, q: LineId, N: Int, boundary: Int, site: KAddress): ListBuffer[LineId] = {
     logger.info("logoot generating line ids")
     var list:mutable.ListBuffer[LineId] = new mutable.ListBuffer[LineId]
-    var index = 0
-    var interval = 0
+    var index: Int = 0
+    var interval: Int = 0
     while (interval < N){ // Finds a place for N identifiers
       index += 1
-      interval = toBase10(prefix(q, index)) - toBase10(prefix(p, index)) - 1
+      interval = prefix1(q, index) - prefix1(p, index) - 1
     }
-    var step = math.min(interval.toFloat/N, boundary).toInt
-    var r = prefix(p, index)
+    var step = math.min(interval/N, boundary)
+    var r = prefix2(p, index)
     for (_ <- 1 to N ){ // Constructs N identifiers
       var rand:ListBuffer[Int] = ListBuffer.empty[Int]
       rand += Random(1, step)
@@ -122,24 +123,38 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     list
   }
 
+  def prefix1(p: LineId, index: Int):Int = {
+    var digits = ""
+    for (i <- 0 until index){
+      if (i < p.positions.size){
+        digits += p.positions(i).digit
+      } else {
+        digits += "0"
+      }
+    }
+    digits.toInt
+  }
+
+  def prefix2(p: LineId, index: Int):ListBuffer[Int] = {
+    var digits: ListBuffer[Int] = new ListBuffer[Int]
+    for (i <- 0 until index){
+      if (i < p.positions.size){
+        digits += p.positions(i).digit
+      } else {
+        digits += 0
+      }
+    }
+    digits
+  }
+
   def toBase10(digits: mutable.ListBuffer[Int]): Int ={
-    //1.2.3 base 100 is 3*100^0 + 2*100^1 + 1*100^2 = 102.003 in base 10 (decimal)
+    //1.2.3 base 100 is 3*100^0 + 2*100^1 + 1*100^2 in base 10
     var out: Int = 0
     for(i <- (digits.size - 1) to 0 by -1){
       val veldi = (digits.size - 1) - i
-      out += digits(i) * math.pow(10, veldi).toInt
+      out += digits(i) * math.pow(100, veldi).toInt
     }
     out
-  }
-
-  def fromBase10(num: Int): ListBuffer[Int] = {
-    var tmp = num
-    var digits: ListBuffer[Int] = ListBuffer.empty[Int]
-    while (tmp != 0){
-      digits += tmp % 100
-      tmp /= 100
-    }
-    digits
   }
 
   def prefix(p: LineId, index: Int): mutable.ListBuffer[Int] = {
@@ -154,6 +169,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     out
   }
 
+
   def Random(start: Int, end: Int): Int ={
     val rnd = new scala.util.Random
     start + rnd.nextInt( (end - start) + 1 )
@@ -164,7 +180,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   def constructId(r: mutable.ListBuffer[Int], p: LineId, q: LineId, site: KAddress): LineId = {
     val id = new LineId(mutable.ListBuffer.empty)
     for( i <- r.indices){
-      val d = r(i)
+      val d: Int = r(i)
       var s: KAddress = null
       var c:Integer = 0
       if(i < p.positions.size && d == p.positions(i).digit){

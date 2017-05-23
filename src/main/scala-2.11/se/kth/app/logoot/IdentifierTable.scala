@@ -6,31 +6,22 @@ import scala.collection.mutable.ListBuffer
   * Created by reginbald on 20/05/2017.
   */
 class IdentifierTable {
+
+  class ObjectArrayTools[T <: AnyRef](a: Array[T]) {
+    def binarySearch(key: T) = {
+      java.util.Arrays.binarySearch(a.asInstanceOf[Array[AnyRef]],key)
+    }
+  }
+  implicit def anyrefarray_tools[T <: AnyRef](a: Array[T]): ObjectArrayTools[T] = new ObjectArrayTools(a)
+
+
   private var table:ListBuffer[LineId] = new ListBuffer[LineId]
 
   table.insert(0, new LineId(ListBuffer[Position](new Position(0, null, null))))
   table.insert(1, new LineId(ListBuffer[Position](new Position(99, null, null))))
 
   def binarySearch(key: LineId): Int = {
-    var out: Int = -1
-    var lo: Int = 0
-    var hi: Int = table.size - 1
-    var mid:Int = 0
-    while (lo <= hi) {
-      mid = lo + (hi - lo) / 2
-      //if (key.lessThan(table(mid))) {
-      if(key.compare(table(mid)) < 0) {
-        hi = mid - 1
-      }
-      //else if (table(mid).lessThan(key)) {
-      else if(key.compare(table(mid)) > 0) {
-        lo = mid + 1
-      }
-      else {
-        return mid
-      }
-    }
-    if (out == -1 ) out = -1 - mid
+    var out = table.toArray.binarySearch(key)
     out
   }
 

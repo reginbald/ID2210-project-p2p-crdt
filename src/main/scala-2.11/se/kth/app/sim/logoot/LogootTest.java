@@ -23,6 +23,11 @@ public class LogootTest {
 
         int node1_patch = res.get("1patch", Integer.class);
         String node1_doc = res.getString("1doc");
+        String node2_doc = res.getString("2doc");
+        String node3_doc = res.getString("2doc");
+        String node4_doc = res.getString("3doc");
+        String node5_doc = res.getString("4doc");
+
 
 
         // All should send 5 pings

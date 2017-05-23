@@ -55,6 +55,9 @@ class AppComp(init: Init[AppComp]) extends ComponentDefinition with StrictLoggin
     case msg:Logoot_Doc => handle {
       trigger(AppOut(self, msg) -> appPort)
     }
+    case msg:Logoot_Done => handle {
+      trigger(AppOut(self, msg) -> appPort)
+    }
   }
 
   broadcastPort uponEvent {

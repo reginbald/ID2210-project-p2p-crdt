@@ -38,6 +38,8 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   var patch:se.kth.app.logoot.Patch = new se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
 
+  var processing: Boolean = false
+
 
   ctrl uponEvent {
     case _: Start => handle {
@@ -59,6 +61,10 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       logger.info(self + " - Got document")
       res.put(self.getId + "doc", doc)
     }
+    case AppOut(src:KAddress, Logoot_Done(id:UUID)) => handle {
+      logger.info(self + " - done adding patch")
+      processing = false
+    }
   }
 
   //timer uponEvent {
@@ -71,7 +77,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   croupier uponEvent {
     case _:CroupierSample[_] => handle {
       val tmp = self.getId.toString
-      if(tmp.equals("1")) {
+      if(tmp.equals("1") && !processing) {
         if(patchCounter < 5){
           logger.info("Sending Patch Command")
           patch = new se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
@@ -79,6 +85,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
           patchCounter += 1
           res.put(self.getId + "patch", patchCounter)
           trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
+          processing = true
         }
       }
       logger.info("Sending Doc Request Command")
