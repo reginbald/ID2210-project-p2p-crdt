@@ -46,6 +46,16 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     }
     case undo:Logoot_Undo => handle {
       logger.info("logoot received undo from client")
+      //patch := HB.get(patchID)
+      val patch = histBuff.get(undo.patchId)
+      patch match {
+        case None => logger.info("not found in histBuff")
+        case Some(p) =>
+          p.degree -= 1
+          if (p.degree == 0){
+            execute(inverse(p))
+          }
+      }
       trigger(CORB_Broadcast(undo), nwcb)
     }
     case redo:Logoot_Redo => handle {
@@ -82,7 +92,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
         case Some(patch) =>
           patch.degree += 1
           if (patch.degree == 0){
-            execute(patch)
+            execute(patch) //
           }
         case None => logger.info("patch not found")
       }
