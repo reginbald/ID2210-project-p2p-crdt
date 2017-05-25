@@ -136,20 +136,21 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     processing = true
     res.put(self.getId + "patch", patchCounter)
     if(patchCounter == 1){
-      patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 1)
+      processingPatchID = UUID.randomUUID()
+      patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 1)
       patch.operations += Insert(null, " mom " + patchCounter)
       //patch.operations += Insert(null, " dad " + patchCounter)
      // patch.operations += Insert(null, " eric " + patchCounter)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     } else if(patchCounter == 2){
-      patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 0)
+      processingPatchID = UUID.randomUUID()
+      patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
       patch.operations += Remove(lastPatch.operations.head.id, lastPatch.operations.head.content)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     }
     else if(patchCounter == 3) {
+      processingPatchID = lastPatch.id
       trigger(AppIn(Logoot_Undo(lastPatch.id)), appPort)
-    } else {
-      logger.info("undo simulation got unkown command")
     }
   }
 
