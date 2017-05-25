@@ -84,5 +84,19 @@ public class LogootTest {
         String node2_doc = res.getString("2doc");
         String node3_doc = res.getString("3doc");
     }
+
+    @Test
+    public void Redo() {
+        SimulationScenario.setSeed(ScenarioSetup.scenarioSeed());
+        SimulationScenario simpleBootScenario = LogootTestScenarioGen.redoBoot();
+        simpleBootScenario.simulate(LauncherComp.class);
+
+        int node1_patch = res.get("1patch", Integer.class);
+        String node1_doc = res.getString("1doc");
+        String node2_doc = res.getString("2doc");
+        String node3_doc = res.getString("3doc");
+
+
+    }
 }
 
