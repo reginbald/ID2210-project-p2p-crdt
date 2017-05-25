@@ -149,7 +149,7 @@ object LogootTestScenarioGen {
       val startPeers = new StochasticProcess() {
         {
           eventInterArrivalTime(uniform(1000, 1100))
-          raise(5, removeNodeOp, new BasicIntSequentialDistribution(1))
+          raise(3, removeNodeOp, new BasicIntSequentialDistribution(1))
         }
       }
 

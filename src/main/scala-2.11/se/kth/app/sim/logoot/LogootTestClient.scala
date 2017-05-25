@@ -32,7 +32,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   }
 
   var patchCounter:Int = 0
-  var patchTotal:Int = 2
+  var patchTotal:Int = 3
   var undo:Int = 0 // todo
   var redo:Int = 0 // todo
   var requestDocOnce:Int = 0

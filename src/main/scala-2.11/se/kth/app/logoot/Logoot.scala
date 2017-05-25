@@ -46,29 +46,10 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     }
     case undo:Logoot_Undo => handle {
       logger.info("logoot received undo from client")
-
-      val patch = histBuff.get(undo.patchId)
-      patch match {
-        case None => logger.info("not found in histBuff")
-        case Some(p) =>
-          p.degree -= 1
-          if (p.degree == 0){
-            execute(inverse(p))
-          }
-      }
       trigger(CORB_Broadcast(undo), nwcb)
     }
     case redo:Logoot_Redo => handle {
       logger.info("logoot received redo from client")
-
-      val patch = histBuff.get(redo.patchId)
-      patch match {
-        case None => logger.info("redo op histbuff didn't find patchId")
-        case Some(p) =>
-          if (p.degree == 1) {
-            execute(p)
-          }
-      }
       trigger(CORB_Broadcast(redo), nwcb)
     }
     case doc:Logoot_Doc => handle {
@@ -235,7 +216,8 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
           }
         case del:Remove =>
           var degree = 0
-          val position = identifierTable.binarySearch(del.id)
+          var position = identifierTable.binarySearch(del.id)
+          if( position < 0) position = math.abs(position) - 1
           if (identifierTable.getId(position) == del.id) {
             document.remove(position,del.content)
             identifierTable.remove(position, del.id)

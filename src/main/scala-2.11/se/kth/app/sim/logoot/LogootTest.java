@@ -24,9 +24,9 @@ public class LogootTest {
         int node1_patch = res.get("1patch", Integer.class);
         String node1_doc = res.getString("1doc");
         String node2_doc = res.getString("2doc");
-        String node3_doc = res.getString("2doc");
-        String node4_doc = res.getString("3doc");
-        String node5_doc = res.getString("4doc");
+        String node3_doc = res.getString("3doc");
+        String node4_doc = res.getString("4doc");
+        String node5_doc = res.getString("5doc");
 
 
 
@@ -46,17 +46,13 @@ public class LogootTest {
         int node1_patch = res.get("1patch", Integer.class);
         String node1_doc = res.getString("1doc");
         String node2_doc = res.getString("2doc");
-        String node3_doc = res.getString("2doc");
-        String node4_doc = res.getString("3doc");
-        String node5_doc = res.getString("4doc");
+        String node3_doc = res.getString("3doc");
 
 
 
         // Document at all nodes should be the same after insert
         Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node2_doc);
         Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node3_doc);
-        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node4_doc);
-        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node5_doc);
     }
 }
 
