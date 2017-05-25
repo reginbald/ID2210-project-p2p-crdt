@@ -83,6 +83,8 @@ public class LogootTest {
         String node1_doc = res.getString("1doc");
         String node2_doc = res.getString("2doc");
         String node3_doc = res.getString("3doc");
+
+
     }
 
     @Test
