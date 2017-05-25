@@ -72,5 +72,17 @@ public class LogootTest {
 
         Assert.assertEquals("Document should remove first mom insert", node1_doc, "-start- mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 dad 1 eric 1 dad 1 eric 1 dad 1 eric 1-end-");
     }
+
+    @Test
+    public void Undo() {
+        SimulationScenario.setSeed(ScenarioSetup.scenarioSeed());
+        SimulationScenario simpleBootScenario = LogootTestScenarioGen.undoBoot();
+        simpleBootScenario.simulate(LauncherComp.class);
+
+        int node1_patch = res.get("1patch", Integer.class);
+        String node1_doc = res.getString("1doc");
+        String node2_doc = res.getString("2doc");
+        String node3_doc = res.getString("3doc");
+    }
 }
 

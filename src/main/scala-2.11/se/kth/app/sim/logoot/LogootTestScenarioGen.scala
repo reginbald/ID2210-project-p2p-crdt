@@ -62,6 +62,31 @@ object LogootTestScenarioGen {
     }
   }
 
+  val undoNodeOp = new Operation1[StartNodeEvent, Integer]() {
+    override def generate(nodeId: Integer) : StartNodeEvent = new StartNodeEvent() {
+      val selfAdr: KAddress = ScenarioSetup.getNodeAdr("193.0.0." + nodeId, nodeId)
+
+      override def getNodeAddress: Address = selfAdr
+
+      override def getComponentDefinition: Class[HostMngrComp] = classOf[HostMngrComp]
+
+      override def getComponentInit: Init[HostMngrComp] = new Init(
+        selfAdr,
+        ScenarioSetup.bootstrapServer,
+        ScenarioSetup.croupierOId,
+        2
+      )
+
+      override def initConfigUpdate: util.HashMap[String, Object] = {
+        val nodeConfig = new java.util.HashMap[String, Object]
+        nodeConfig.put("system.id", nodeId)
+        nodeConfig.put("system.seed", long2Long(ScenarioSetup.getNodeSeed(nodeId)))
+        nodeConfig.put("system.port", int2Integer(ScenarioSetup.appPort))
+        nodeConfig
+      }
+    }
+  }
+
   val removeNodeOp = new Operation1[StartNodeEvent, Integer]() {
     override def generate(nodeId: Integer) : StartNodeEvent = new StartNodeEvent() {
       val selfAdr: KAddress = ScenarioSetup.getNodeAdr("193.0.0." + nodeId, nodeId)
@@ -119,6 +144,37 @@ object LogootTestScenarioGen {
         {
           eventInterArrivalTime(uniform(1000, 1100))
           raise(5, insertNodeOp, new BasicIntSequentialDistribution(1))
+        }
+      }
+
+      systemSetup.start()
+      startBootstrapServer.startAfterTerminationOf(1000, systemSetup)
+      startPeers.startAfterTerminationOf(1000, startBootstrapServer)
+      terminateAfterTerminationOf(100*1000, startPeers)
+    }
+    scenario
+  }
+
+  def undoBoot: SimulationScenario = {
+    val scenario: SimulationScenario = new SimulationScenario() {
+      val systemSetup = new StochasticProcess() {
+        {
+          eventInterArrivalTime(constant(1000))
+          raise(1, systemSetupOp)
+        }
+      }
+
+      val startBootstrapServer = new StochasticProcess() {
+        {
+          eventInterArrivalTime(constant(1000))
+          raise(1, startBootstrapServerOp)
+        }
+      }
+
+      val startPeers = new StochasticProcess() {
+        {
+          eventInterArrivalTime(uniform(1000, 1100))
+          raise(3, undoNodeOp, new BasicIntSequentialDistribution(1))
         }
       }
 

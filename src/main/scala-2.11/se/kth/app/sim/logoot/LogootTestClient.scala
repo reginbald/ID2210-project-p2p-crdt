@@ -90,6 +90,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
         if(patchCounter <= patchTotal){
           if (simulation == 0) insert_simulation()
           if (simulation == 1) remove_simulation()
+          if (simulation == 2) undo_simulation()
           patchCounter += 1
         }
       }
@@ -126,6 +127,18 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     }
     res.put(self.getId + "patch", patchCounter)
     trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
+  }
+
+  def undo_simulation(): Unit ={
+    logger.info("Sending Patch Command")
+    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 3)
+    patch.operations += Insert(null, " mom " + patchCounter)
+    patch.operations += Insert(null, " dad " + patchCounter)
+    patch.operations += Insert(null, " eric " + patchCounter)
+    patch.operations += Remove(null, "eric " + patchCounter)
+    res.put(self.getId + "patch", patchCounter)
+    trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
+    processing = true
   }
 
   //override def tearDown(): Unit = {
