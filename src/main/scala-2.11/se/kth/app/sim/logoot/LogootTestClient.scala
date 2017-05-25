@@ -42,7 +42,6 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   var processing: Boolean = false
   var processingPatchID: UUID = _
   var lastPatch: se.kth.app.logoot.Patch = _
-  var done: se.kth.app.logoot.Patch = _
 
 
   ctrl uponEvent {
@@ -84,7 +83,6 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   croupier uponEvent {
     case _:CroupierSample[_] => handle {
-      val tmp = self.getId.toString
       if(!processing) {
         if(patchCounter <= patchTotal){
           if(simulation == 0) insert_simulation()
