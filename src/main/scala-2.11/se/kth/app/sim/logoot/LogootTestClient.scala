@@ -40,6 +40,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   var patch:se.kth.app.logoot.Patch = _
 
   var processing: Boolean = false
+  var processingPatchID: UUID = _
   var lastPatch: se.kth.app.logoot.Patch = _
   var done: se.kth.app.logoot.Patch = _
 
@@ -66,13 +67,11 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     }
     case AppOut(_:KAddress, Logoot_Done(_: se.kth.app.logoot.Patch)) => handle {
       logger.info(self + " - logoot processing done")
-      done = patch
-      if (lastPatch != null && lastPatch.id == done.id) processing = false
+      if (processingPatchID == patch.id) processing = false
     }
     case AppOut(_:KAddress, Logoot_Patch(patch: se.kth.app.logoot.Patch)) => handle {
       logger.info(self + " - done adding patch")
       lastPatch = patch
-      if (done != null && lastPatch.id == done.id) processing = false
     }
   }
 
@@ -105,7 +104,8 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   def insert_simulation(): Unit ={
     logger.info("Sending Patch Command")
     processing = true
-    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 3)
+    processingPatchID = UUID.randomUUID()
+    patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
     patch.operations += Insert(null, " mom " + patchCounter)
     patch.operations += Insert(null, " dad " + patchCounter)
     patch.operations += Insert(null, " eric " + patchCounter)
@@ -117,7 +117,8 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   def remove_simulation(): Unit ={
     logger.info("Sending Patch Command")
     processing = true
-    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 0)
+    processingPatchID = UUID.randomUUID()
+    patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
     if (patchCounter % 2 == 1){
       patch.operations += Insert(null, " mom " + patchCounter)
       patch.operations += Insert(null, " dad " + patchCounter)
@@ -132,7 +133,8 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   def undo_simulation(): Unit ={
     logger.info("Sending Patch Command")
-    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 3)
+    processingPatchID = UUID.randomUUID()
+    patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
     patch.operations += Insert(null, " mom " + patchCounter)
     patch.operations += Insert(null, " dad " + patchCounter)
     patch.operations += Insert(null, " eric " + patchCounter)
@@ -147,17 +149,20 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     processing = true
     res.put(self.getId + "patch", patchCounter)
     if(patchCounter == 1){
-      patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 3)
+      processingPatchID = UUID.randomUUID()
+      patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
       patch.operations += Insert(null, " mom " + patchCounter)
       patch.operations += Insert(null, " dad " + patchCounter)
       patch.operations += Insert(null, " eric " + patchCounter)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     } else if(patchCounter == 2){
-      patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 0)
+      processingPatchID = UUID.randomUUID()
+      patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
       patch.operations += Remove(lastPatch.operations.head.id, lastPatch.operations.head.content)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     }
     else if(patchCounter == 3){
+      processingPatchID = lastPatch.id
       trigger(AppIn(Logoot_Undo(lastPatch.id)), appPort)
     } else {
 
