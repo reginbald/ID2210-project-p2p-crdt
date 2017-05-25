@@ -22,6 +22,6 @@ class Cemetery {
   // If degree = 0, the pair is removed from the cemetery.
   def set(id: LineId, degree: Int): Unit ={
     if (degree == 0) table.remove(id)
-    table(id) = degree
+    else table(id) = degree
   }
 }
