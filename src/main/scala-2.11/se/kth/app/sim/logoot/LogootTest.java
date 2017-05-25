@@ -51,7 +51,7 @@ public class LogootTest {
 
 
         // Document at all nodes should be the same after insert
-        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node2_doc);
+        Assert.assertEquals("Document at all nodes should be the same after remove", node1_doc, node2_doc);
         Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node3_doc);
     }
 }

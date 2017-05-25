@@ -37,7 +37,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   var redo:Int = 0 // todo
   var requestDocOnce:Int = 0
 
-  var patch:se.kth.app.logoot.Patch = new se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
+  var patch:se.kth.app.logoot.Patch = null
 
   var processing: Boolean = false
   var lastPatch: se.kth.app.logoot.Patch = null
@@ -96,7 +96,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   def insert_simulation(): Unit ={
     logger.info("Sending Patch Command")
-    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
+    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 3)
     patch.operations += Insert(null, " mom " + patchCounter)
     patch.operations += Insert(null, " dad " + patchCounter)
     patch.operations += Insert(null, " eric " + patchCounter)
@@ -107,11 +107,12 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   def remove_simulation(): Unit ={
     logger.info("Sending Patch Command")
-    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation])
+    patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 0)
     if (patchCounter % 2 == 0){
       patch.operations += Insert(null, " mom " + patchCounter)
       patch.operations += Insert(null, " dad " + patchCounter)
       patch.operations += Insert(null, " eric " + patchCounter)
+      patch.N = 3 // number of insert that need ids
     } else {
       patch.operations += Remove(lastPatch.operations(0).id, lastPatch.operations(0).content)
     }

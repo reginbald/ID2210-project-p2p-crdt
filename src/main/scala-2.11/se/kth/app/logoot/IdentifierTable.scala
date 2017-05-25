@@ -34,6 +34,10 @@ class IdentifierTable {
       return (getId(index - 1), getId(index + 1))
   }
 
+  def contains(id: LineId): Boolean ={
+    table.contains(id)
+  }
+
   def insert(index: Int, id: LineId) = {
     table.insert(index, id)
   }

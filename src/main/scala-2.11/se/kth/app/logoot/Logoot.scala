@@ -36,12 +36,18 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     case Logoot_Do(line: Int, patch:Patch) => handle {
       logger.info("logoot received patch from client")
       val (p:LineId, q:LineId)= identifierTable.getBounds(line)
-      val N:Int = patch.operations.size
-      val ids:ListBuffer[LineId] = generateLineId(p, q, N, 10, self)
+      if (patch.N > 0){
+        val ids:ListBuffer[LineId] = generateLineId(p, q, patch.N, 10, self)
 
-      for (i <- 0 until N){
-        patch.operations(i).id = ids(i)
+        var counter: Int = 0
+        for (i <- 0 until patch.operations.size){
+          patch.operations(i) match {
+            case insert: Insert => insert.id = ids(counter); counter += 1
+            case _ => // Do nothing
+          }
+        }
       }
+
       trigger(CORB_Broadcast(Logoot_Patch(patch)), nwcb)
     }
     case undo:Logoot_Undo => handle {
@@ -91,7 +97,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   }
 
   def inverse(patch:Patch): Patch ={
-    val out:Patch = Patch(patch.id, patch.degree, new ListBuffer[Operation])
+    val out:Patch = Patch(patch.id, patch.degree, new ListBuffer[Operation], patch.N)
     for (i <- patch.operations.indices){
       patch.operations(i) match {
         case insert:Insert => out.operations += Remove(insert.id, insert.content)
@@ -216,9 +222,8 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
           }
         case del:Remove =>
           var degree = 0
-          var position = identifierTable.binarySearch(del.id)
-          if( position < 0) position = math.abs(position) - 1
-          if (identifierTable.getId(position) == del.id) {
+          if(identifierTable.contains(del.id)){
+            val position = identifierTable.binarySearch(del.id)
             document.remove(position,del.content)
             identifierTable.remove(position, del.id)
             degree = 0
