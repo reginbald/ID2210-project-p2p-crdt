@@ -9,6 +9,6 @@ import scala.collection.mutable.ListBuffer
   */
 case class Patch(id: UUID, var degree: Int, var operations: ListBuffer[Operation], var N: Int) {
   override def hashCode(): Int = {
-    id.hashCode() + degree + N + operations.size
+    id.hashCode() //+ degree + N + operations.size
   }
 }
