@@ -25,6 +25,8 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
   var document = new Document
   var histBuff = new HistoryBuffer
 
+  var currentPatchID: UUID = _
+
   /* Logoot events */
   ctrl uponEvent {
     case _:Start => handle {
@@ -40,14 +42,15 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
         val ids:ListBuffer[LineId] = generateLineId(p, q, patch.N, 10, self)
 
         var counter: Int = 0
-        for (i <- 0 until patch.operations.size){
+        for (i <- patch.operations.indices){
           patch.operations(i) match {
             case insert: Insert => insert.id = ids(counter); counter += 1
             case _ => // Do nothing
           }
         }
       }
-
+      currentPatchID = patch.id
+      trigger(Logoot_Patch(patch), logootPort)
       trigger(CORB_Broadcast(Logoot_Patch(patch)), nwcb)
     }
     case undo:Logoot_Undo => handle {
@@ -70,7 +73,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       execute(patch)
       histBuff.add(patch)
       patch.degree = 1
-      trigger(Logoot_Done(patch), logootPort)
+      if(currentPatchID == patch.id) trigger(Logoot_Done(patch), logootPort)
     }
     case CORB_Deliver(_:KAddress, Logoot_Undo(patchId: UUID)) => handle {
       logger.info("logoot received undo")

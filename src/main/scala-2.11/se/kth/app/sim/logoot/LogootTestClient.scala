@@ -31,16 +31,17 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     case Init(s: KAddress, sim: Int) => (s, sim)
   }
 
-  var patchCounter:Int = 0
+  var patchCounter:Int = 1
   var patchTotal:Int = 3
   var undo:Int = 0 // todo
   var redo:Int = 0 // todo
   var requestDocOnce:Int = 0
 
-  var patch:se.kth.app.logoot.Patch = null
+  var patch:se.kth.app.logoot.Patch = _
 
   var processing: Boolean = false
-  var lastPatch: se.kth.app.logoot.Patch = null
+  var lastPatch: se.kth.app.logoot.Patch = _
+  var done: se.kth.app.logoot.Patch = _
 
 
   ctrl uponEvent {
@@ -59,14 +60,19 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
   }
 
   appPort uponEvent {
-    case AppOut(src:KAddress, Logoot_Doc(doc:String)) => handle {
+    case AppOut(_:KAddress, Logoot_Doc(doc:String)) => handle {
       logger.info(self + " - Got document")
       res.put(self.getId + "doc", doc)
     }
-    case AppOut(src:KAddress, Logoot_Done(patch: se.kth.app.logoot.Patch)) => handle {
+    case AppOut(_:KAddress, Logoot_Done(_: se.kth.app.logoot.Patch)) => handle {
+      logger.info(self + " - logoot processing done")
+      done = patch
+      if (lastPatch != null && lastPatch.id == done.id) processing = false
+    }
+    case AppOut(_:KAddress, Logoot_Patch(patch: se.kth.app.logoot.Patch)) => handle {
       logger.info(self + " - done adding patch")
       lastPatch = patch
-      processing = false
+      if (done != null && lastPatch.id == done.id) processing = false
     }
   }
 
@@ -81,13 +87,13 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     case _:CroupierSample[_] => handle {
       val tmp = self.getId.toString
       if(!processing) {
-        if(patchCounter < patchTotal){
+        if(patchCounter <= patchTotal){
           if (simulation == 0) insert_simulation()
           if (simulation == 1) remove_simulation()
           patchCounter += 1
         }
       }
-      if (patchCounter == patchTotal){
+      if (patchCounter == patchTotal + 1){
         logger.info("Sending Doc Request Command")
         trigger(AppIn(Logoot_Doc(null)) -> appPort)
       }
@@ -96,30 +102,30 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   def insert_simulation(): Unit ={
     logger.info("Sending Patch Command")
+    processing = true
     patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 3)
     patch.operations += Insert(null, " mom " + patchCounter)
     patch.operations += Insert(null, " dad " + patchCounter)
     patch.operations += Insert(null, " eric " + patchCounter)
+    patch.N = 3 // number of insert that need ids
     res.put(self.getId + "patch", patchCounter)
     trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
-    processing = true
   }
 
   def remove_simulation(): Unit ={
     logger.info("Sending Patch Command")
+    processing = true
     patch = se.kth.app.logoot.Patch(UUID.randomUUID(), 0, new ListBuffer[Operation], 0)
-    if (patchCounter % 2 == 0){
+    if (patchCounter % 2 == 1){
       patch.operations += Insert(null, " mom " + patchCounter)
       patch.operations += Insert(null, " dad " + patchCounter)
       patch.operations += Insert(null, " eric " + patchCounter)
       patch.N = 3 // number of insert that need ids
     } else {
-      patch.operations += Remove(lastPatch.operations(0).id, lastPatch.operations(0).content)
+      patch.operations += Remove(lastPatch.operations.head.id, lastPatch.operations.head.content)
     }
-
     res.put(self.getId + "patch", patchCounter)
     trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
-    processing = true
   }
 
   //override def tearDown(): Unit = {
