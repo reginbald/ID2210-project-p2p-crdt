@@ -92,7 +92,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
           patchCounter += 1
         }
       }
-      if (patchCounter == patchTotal + 1){
+      if (patchCounter > patchTotal){
         logger.info("Sending Doc Request Command")
         trigger(AppIn(Logoot_Doc(null)) -> appPort)
       }

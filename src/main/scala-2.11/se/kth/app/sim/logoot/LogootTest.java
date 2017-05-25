@@ -98,7 +98,9 @@ public class LogootTest {
         String node2_doc = res.getString("2doc");
         String node3_doc = res.getString("3doc");
 
-
+        // Document at all nodes should be the same after remove
+        Assert.assertEquals("Document at all nodes should be the same after remove", node1_doc, node2_doc);
+        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node3_doc);
     }
 }
 

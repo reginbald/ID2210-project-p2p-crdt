@@ -77,25 +77,31 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     }
     case CORB_Deliver(_:KAddress, Logoot_Undo(patchId: UUID)) => handle {
       logger.info("logoot received undo")
+      var patch: Patch = null
       histBuff.get(patchId) match {
-        case Some(patch) =>
+        case Some(p) =>
+          patch = p
           patch.degree -= 1
           if (patch.degree == 0){
             execute(inverse(patch))
           }
         case None => logger.info("patch not found")
       }
+      if(patch != null && currentPatchID == patchId) trigger(Logoot_Done(patch), logootPort)
     }
     case CORB_Deliver(_:KAddress, Logoot_Redo(patchId: UUID)) => handle {
       logger.info("logoot received redo")
+      var patch:Patch = null
       histBuff.get(patchId) match {
-        case Some(patch) =>
+        case Some(p) =>
+          patch = p
           patch.degree += 1
           if (patch.degree == 0){
             execute(patch) //
           }
         case None => logger.info("patch not found")
       }
+      if(patch != null && currentPatchID == patchId) trigger(Logoot_Done(patch), logootPort)
     }
   }
 
