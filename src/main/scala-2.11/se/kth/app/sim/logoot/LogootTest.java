@@ -1,6 +1,5 @@
 package se.kth.app.sim.logoot;
 
-import io.netty.util.internal.StringUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import se.kth.app.sim.ScenarioSetup;
@@ -39,13 +38,23 @@ public class LogootTest {
         Assert.assertEquals("Node5 should send 3 patches", node5_patch, 3);
 
         // Document at all nodes should be the same after insert
-        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node2_doc);
-        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node3_doc);
-        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node4_doc);
-        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node5_doc);
+        Assert.assertEquals("Document at node 1 should be the same as at node 2", node1_doc, node2_doc);
+        Assert.assertEquals("Document at node 1 should be the same as at node 3", node1_doc, node3_doc);
+        Assert.assertEquals("Document at node 1 should be the same as at node 4", node1_doc, node4_doc);
+        Assert.assertEquals("Document at node 1 should be the same as at node 5", node1_doc, node5_doc);
 
         // The content of the document should include all inserts
-        Assert.assertEquals("Document should have all insert operations", node1_doc, "-start- mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 mom 2 dad 2 eric 2 mom 2 dad 2 eric 2 mom 2 dad 2 eric 2 mom 2 dad 2 eric 2 mom 2 dad 2 eric 2 mom 1 mom 1 mom 1 mom 1 mom 1 dad 1 eric 1 dad 1 eric 1 dad 1 eric 1 dad 1 eric 1 dad 1 eric 1-end-");
+        Assert.assertEquals("Document at node 1 should contain 5x mom 1", 5, ((node1_doc.length() - node1_doc.replace("mom 1", "").length()) / ("mom 1".length())));
+        Assert.assertEquals("Document at node 1 should contain 5x mom 2", 5, (node2_doc.length() - node2_doc.replace("mom 2", "").length()) /("mom 2".length()));
+        Assert.assertEquals("Document at node 1 should contain 5x mom 3", 5, (node3_doc.length() - node3_doc.replace("mom 3", "").length()) /("mom 3".length()));
+
+        Assert.assertEquals("Document at node 1 should contain 5x dad 1", 5, ((node1_doc.length() - node1_doc.replace("dad 1", "").length()) / ("dad 1".length())));
+        Assert.assertEquals("Document at node 1 should contain 5x dad 2", 5, (node2_doc.length() - node2_doc.replace("dad 2", "").length()) /("dad 2".length()));
+        Assert.assertEquals("Document at node 1 should contain 5x dad 3", 5, (node3_doc.length() - node3_doc.replace("dad 3", "").length()) /("dad 3".length()));
+
+        Assert.assertEquals("Document at node 1 should contain 5x eric 1", 5, ((node1_doc.length() - node1_doc.replace("eric 1", "").length()) / ("eric 1".length())));
+        Assert.assertEquals("Document at node 1 should contain 5x eric 2", 5, (node2_doc.length() - node2_doc.replace("eric 2", "").length()) /("eric 2".length()));
+        Assert.assertEquals("Document at node 1 should contain 5x eric 3", 5, (node3_doc.length() - node3_doc.replace("eric 3", "").length()) /("eric 3".length()));
     }
 
     @Test
@@ -68,10 +77,13 @@ public class LogootTest {
         Assert.assertEquals("Node3 should send 3 patches", node3_patch, 3);
 
         // Document at all nodes should be the same after remove
-        Assert.assertEquals("Document at all nodes should be the same after remove", node1_doc, node2_doc);
-        Assert.assertEquals("Document at all nodes should be the same after remove", node1_doc, node3_doc);
+        Assert.assertEquals("Document at node 1 should be the same as at node 2", node1_doc, node2_doc);
+        Assert.assertEquals("Document at node 1 should be the same as at node 3", node1_doc, node3_doc);
 
-        Assert.assertEquals("Document should remove first mom insert", node1_doc, "-start- mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 dad 1 eric 1 dad 1 eric 1 dad 1 eric 1-end-");
+        // Verify that remove was executed
+        Assert.assertEquals("Document at node 1 should remove 3x mom 1", 0, ((node1_doc.length() - node1_doc.replace("mom 1", "").length()) / ("mom 1".length())));
+        Assert.assertEquals("Document at node 2 should remove 3x mom 1", 0, (node2_doc.length() - node2_doc.replace("mom 1", "").length()) /("mom 1".length()));
+        Assert.assertEquals("Document at node 3 should remove 3x mom 1", 0, (node3_doc.length() - node3_doc.replace("mom 1", "").length()) /("mom 1".length()));
     }
 
     @Test
@@ -92,9 +104,9 @@ public class LogootTest {
         Assert.assertEquals("Node2 should send 3 patches", node2_patch, 3);
         Assert.assertEquals("Node3 should send 3 patches", node3_patch, 3);
 
-        // Document at all nodes should be the same after remove
-        Assert.assertEquals("Document at all nodes should be the same after undo", node1_doc, node2_doc);
-        Assert.assertEquals("Document at all nodes should be the same after undo", node1_doc, node3_doc);
+        // Document at all nodes should be the same after undo
+        Assert.assertEquals("Document at node 1 should be the same as at node 2", node1_doc, node2_doc);
+        Assert.assertEquals("Document at node 1 should be the same as at node 3", node1_doc, node3_doc);
 
         // Verify that remove was reverted
         Assert.assertEquals("Document at node 1 should contain 3x mom 1", 3, ((node1_doc.length() - node1_doc.replace("mom 1", "").length()) / ("mom 1".length())));
@@ -113,11 +125,11 @@ public class LogootTest {
         String node2_doc = res.getString("2doc");
         String node3_doc = res.getString("3doc");
 
-        // Document at all nodes should be the same after remove
-        Assert.assertEquals("Document at all nodes should be the same after redo", node1_doc, node2_doc);
-        Assert.assertEquals("Document at all nodes should be the same after redo", node1_doc, node3_doc);
+        //Document at all nodes should be the same after redo
+        Assert.assertEquals("Document at node 1 should be the same as at node 2", node1_doc, node2_doc);
+        Assert.assertEquals("Document at node 1 should be the same as at node 3", node1_doc, node3_doc);
 
-        // Verify that remove was reverted
+        // Verify that remove was re-executed
         Assert.assertEquals("Document at node 1 should remove 3x mom 1", 0, ((node1_doc.length() - node1_doc.replace("mom 1", "").length()) / ("mom 1".length())));
         Assert.assertEquals("Document at node 2 should remove 3x mom 1", 0, (node2_doc.length() - node2_doc.replace("mom 1", "").length()) /("mom 1".length()));
         Assert.assertEquals("Document at node 3 should remove 3x mom 1", 0, (node3_doc.length() - node3_doc.replace("mom 1", "").length()) /("mom 1".length()));

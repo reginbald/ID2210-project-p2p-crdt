@@ -96,8 +96,8 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
         case Some(p) =>
           patch = p
           patch.degree += 1
-          if (patch.degree == 0){
-            execute(patch) //
+          if (patch.degree == 1){
+            execute(patch)
           }
         case _ => logger.info("patch not found")
       }
