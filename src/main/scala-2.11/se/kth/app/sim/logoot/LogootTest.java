@@ -1,5 +1,6 @@
 package se.kth.app.sim.logoot;
 
+import io.netty.util.internal.StringUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import se.kth.app.sim.ScenarioSetup;
@@ -68,7 +69,7 @@ public class LogootTest {
 
         // Document at all nodes should be the same after remove
         Assert.assertEquals("Document at all nodes should be the same after remove", node1_doc, node2_doc);
-        Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node3_doc);
+        Assert.assertEquals("Document at all nodes should be the same after remove", node1_doc, node3_doc);
 
         Assert.assertEquals("Document should remove first mom insert", node1_doc, "-start- mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 mom 3 dad 3 eric 3 dad 1 eric 1 dad 1 eric 1 dad 1 eric 1-end-");
     }
@@ -101,6 +102,9 @@ public class LogootTest {
         // Document at all nodes should be the same after remove
         Assert.assertEquals("Document at all nodes should be the same after remove", node1_doc, node2_doc);
         Assert.assertEquals("Document at all nodes should be the same after insert", node1_doc, node3_doc);
+
+        Assert.assertEquals("Should contain 3x mom 1", 3, (node1_doc.length() - node1_doc.replace("mom 1", "").length()) /"mom 1".length());
+
     }
 }
 

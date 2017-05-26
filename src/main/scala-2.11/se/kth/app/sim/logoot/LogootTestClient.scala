@@ -103,11 +103,10 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     logger.info("Sending Patch Command")
     processing = true
     processingPatchID = UUID.randomUUID()
-    patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
+    patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
     patch.operations += Insert(null, " mom " + patchCounter)
     patch.operations += Insert(null, " dad " + patchCounter)
     patch.operations += Insert(null, " eric " + patchCounter)
-    patch.N = 3 // number of insert that need ids
     res.put(self.getId + "patch", patchCounter)
     trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
   }
@@ -116,13 +115,13 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     logger.info("Sending Patch Command")
     processing = true
     processingPatchID = UUID.randomUUID()
-    patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
     if (patchCounter % 2 == 1){
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
       patch.operations += Insert(null, " mom " + patchCounter)
       patch.operations += Insert(null, " dad " + patchCounter)
       patch.operations += Insert(null, " eric " + patchCounter)
-      patch.N = 3 // number of insert that need ids
     } else {
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
       patch.operations += Remove(lastPatch.operations.head.id, lastPatch.operations.head.content)
     }
     res.put(self.getId + "patch", patchCounter)
@@ -135,14 +134,14 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     res.put(self.getId + "patch", patchCounter)
     if(patchCounter == 1){
       processingPatchID = UUID.randomUUID()
-      patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 1)
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 1)
       patch.operations += Insert(null, " mom " + patchCounter)
       //patch.operations += Insert(null, " dad " + patchCounter)
      // patch.operations += Insert(null, " eric " + patchCounter)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     } else if(patchCounter == 2){
       processingPatchID = UUID.randomUUID()
-      patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
       patch.operations += Remove(lastPatch.operations.head.id, lastPatch.operations.head.content)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     }
@@ -158,14 +157,14 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     res.put(self.getId + "patch", patchCounter)
     if(patchCounter == 1){
       processingPatchID = UUID.randomUUID()
-      patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
       patch.operations += Insert(null, " mom " + patchCounter)
       patch.operations += Insert(null, " dad " + patchCounter)
       patch.operations += Insert(null, " eric " + patchCounter)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     } else if(patchCounter == 2){
       processingPatchID = UUID.randomUUID()
-      patch = se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
       patch.operations += Remove(lastPatch.operations.head.id, lastPatch.operations.head.content)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     }

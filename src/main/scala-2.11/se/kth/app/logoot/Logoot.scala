@@ -71,7 +71,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     case CORB_Deliver(_:KAddress, Logoot_Patch(patch:Patch)) => handle {
       logger.info("logoot received patch")
       execute(patch)
-      histBuff.add(patch)
+      histBuff.add(new Patch(patch.id, patch.degree, patch.operations, patch.N))
       patch.degree = 1
       if(currentPatchID == patch.id) trigger(Logoot_Done(patch), logootPort)
     }
@@ -85,7 +85,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
           if (patch.degree == 0){
             execute(inverse(patch))
           }
-        case None => logger.info("patch not found")
+        case _ => logger.info("patch not found")
       }
       if(patch != null && currentPatchID == patchId) trigger(Logoot_Done(patch), logootPort)
     }
@@ -99,14 +99,14 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
           if (patch.degree == 0){
             execute(patch) //
           }
-        case None => logger.info("patch not found")
+        case _ => logger.info("patch not found")
       }
       if(patch != null && currentPatchID == patchId) trigger(Logoot_Done(patch), logootPort)
     }
   }
 
   def inverse(patch:Patch): Patch ={
-    val out:Patch = Patch(patch.id, patch.degree, new ListBuffer[Operation], patch.N)
+    val out:Patch = new Patch(patch.id, patch.degree, new ListBuffer[Operation], patch.N)
     for (i <- patch.operations.indices){
       patch.operations(i) match {
         case insert:Insert => out.operations += Remove(insert.id, insert.content)
