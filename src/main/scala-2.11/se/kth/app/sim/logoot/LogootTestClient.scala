@@ -48,8 +48,9 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       res.put(self.getId + "patch", patchCounter)
       res.put(self.getId + "doc", "")
 
-      //for redo send extra message
-      if (simulation == 3) patchTotal += 1
+      // send extra messages
+      if (simulation == 3) patchTotal = 4
+      if (simulation == 4) patchTotal = 5
 
       //val spt = new ScheduleTimeout(1000);
       //val timeout = new PingTimeout(spt)
@@ -89,6 +90,7 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
           if(simulation == 1) remove_simulation()
           if(simulation == 2) undo_simulation()
           if(simulation == 3) redo_simulation()
+          if(simulation == 4) double_undo_one_redo_simulation()
           patchCounter += 1
         }
       }
@@ -171,6 +173,31 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       processingPatchID = lastPatch.id
       trigger(AppIn(Logoot_Undo(lastPatch.id)), appPort)
     } else if (patchCounter == 4) {
+      processingPatchID = lastPatch.id
+      trigger(AppIn(Logoot_Redo(lastPatch.id)), appPort)
+    }
+  }
+
+  def double_undo_one_redo_simulation(): Unit ={
+    logger.info("Sending Patch Command")
+    processing = true
+    res.put(self.getId + "patch", patchCounter)
+    if(patchCounter == 1){
+      processingPatchID = UUID.randomUUID()
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
+      patch.operations += Insert(null, " mom " + patchCounter)
+      patch.operations += Insert(null, " dad " + patchCounter)
+      patch.operations += Insert(null, " eric " + patchCounter)
+      trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
+    } else if(patchCounter == 2){
+      processingPatchID = UUID.randomUUID()
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
+      patch.operations += Remove(lastPatch.operations.head.id, lastPatch.operations.head.content)
+      trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
+    } else if(patchCounter == 3 || patchCounter == 4) {
+      processingPatchID = lastPatch.id
+      trigger(AppIn(Logoot_Undo(lastPatch.id)), appPort)
+    } else if (patchCounter == 5) {
       processingPatchID = lastPatch.id
       trigger(AppIn(Logoot_Redo(lastPatch.id)), appPort)
     }

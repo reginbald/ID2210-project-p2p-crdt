@@ -55,13 +55,15 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     }
     case undo:Logoot_Undo => handle {
       logger.info("logoot received undo from client")
+      currentPatchID = undo.patchId
       trigger(CORB_Broadcast(undo), nwcb)
     }
     case redo:Logoot_Redo => handle {
       logger.info("logoot received redo from client")
+      currentPatchID = redo.patchId
       trigger(CORB_Broadcast(redo), nwcb)
     }
-    case doc:Logoot_Doc => handle {
+    case _:Logoot_Doc => handle {
       logger.info("logoot received document request from client")
       trigger(Logoot_Doc(document.flatten()), logootPort)
     }
@@ -75,7 +77,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       histBuff.add(patch)
       if(currentPatchID == patch.id) trigger(Logoot_Done(patch), logootPort)
     }
-    case CORB_Deliver(_:KAddress, Logoot_Undo(patchId: UUID)) => handle {
+    case CORB_Deliver(_:KAddress, Logoot_Undo(patchId: UUID, _)) => handle {
       logger.info("logoot received undo")
       var patch: Patch = null
       histBuff.get(patchId) match {
@@ -89,7 +91,7 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
       }
       if(patch != null && currentPatchID == patchId) trigger(Logoot_Done(patch), logootPort)
     }
-    case CORB_Deliver(_:KAddress, Logoot_Redo(patchId: UUID)) => handle {
+    case CORB_Deliver(_:KAddress, Logoot_Redo(patchId: UUID, _)) => handle {
       logger.info("logoot received redo")
       var patch:Patch = null
       histBuff.get(patchId) match {
