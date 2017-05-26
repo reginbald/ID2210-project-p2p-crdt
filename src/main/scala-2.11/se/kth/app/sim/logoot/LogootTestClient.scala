@@ -33,9 +33,6 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
   var patchCounter:Int = 1
   var patchTotal:Int = 3
-  var undo:Int = 0 // todo
-  var redo:Int = 0 // todo
-  var requestDocOnce:Int = 0
 
   var patch:se.kth.app.logoot.Patch = _
 
@@ -50,6 +47,9 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
 
       res.put(self.getId + "patch", patchCounter)
       res.put(self.getId + "doc", "")
+
+      //for redo send extra message
+      if (simulation == 3) patchTotal += 1
 
       //val spt = new ScheduleTimeout(1000);
       //val timeout = new PingTimeout(spt)
@@ -134,10 +134,10 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
     res.put(self.getId + "patch", patchCounter)
     if(patchCounter == 1){
       processingPatchID = UUID.randomUUID()
-      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 1)
+      patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 3)
       patch.operations += Insert(null, " mom " + patchCounter)
-      //patch.operations += Insert(null, " dad " + patchCounter)
-     // patch.operations += Insert(null, " eric " + patchCounter)
+      patch.operations += Insert(null, " dad " + patchCounter)
+      patch.operations += Insert(null, " eric " + patchCounter)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
     } else if(patchCounter == 2){
       processingPatchID = UUID.randomUUID()
@@ -167,12 +167,12 @@ class LogootTestClient(init: Init[LogootTestClient]) extends ComponentDefinition
       patch = new se.kth.app.logoot.Patch(processingPatchID, 0, new ListBuffer[Operation], 0)
       patch.operations += Remove(lastPatch.operations.head.id, lastPatch.operations.head.content)
       trigger(AppIn(Logoot_Do(0, patch)) -> appPort)
-    }
-    else if(patchCounter == 3){
+    } else if(patchCounter == 3){
       processingPatchID = lastPatch.id
       trigger(AppIn(Logoot_Undo(lastPatch.id)), appPort)
-    } else {
-
+    } else if (patchCounter == 4) {
+      processingPatchID = lastPatch.id
+      trigger(AppIn(Logoot_Redo(lastPatch.id)), appPort)
     }
   }
 

@@ -9,8 +9,8 @@ import se.sics.kompics.Start
 import se.sics.kompics.sl.{ComponentDefinition, Init, NegativePort, PositivePort, handle}
 import se.sics.ktoolbox.util.network.KAddress
 
-import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 
 class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging {
@@ -71,8 +71,8 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     case CORB_Deliver(_:KAddress, Logoot_Patch(patch:Patch)) => handle {
       logger.info("logoot received patch")
       execute(patch)
-      histBuff.add(new Patch(patch.id, patch.degree, patch.operations, patch.N))
       patch.degree = 1
+      histBuff.add(patch)
       if(currentPatchID == patch.id) trigger(Logoot_Done(patch), logootPort)
     }
     case CORB_Deliver(_:KAddress, Logoot_Undo(patchId: UUID)) => handle {
