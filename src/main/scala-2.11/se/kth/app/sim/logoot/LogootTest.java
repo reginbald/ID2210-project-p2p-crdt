@@ -55,6 +55,10 @@ public class LogootTest {
         Assert.assertEquals("Document at node 1 should contain 5x eric 1", 5, ((node1_doc.length() - node1_doc.replace("eric 1", "").length()) / ("eric 1".length())));
         Assert.assertEquals("Document at node 1 should contain 5x eric 2", 5, (node2_doc.length() - node2_doc.replace("eric 2", "").length()) /("eric 2".length()));
         Assert.assertEquals("Document at node 1 should contain 5x eric 3", 5, (node3_doc.length() - node3_doc.replace("eric 3", "").length()) /("eric 3".length()));
+
+        // Verify insert order
+        Assert.assertTrue("1 should be after 2", node1_doc.indexOf("mom 1") > node1_doc.indexOf("mom 2"));
+        Assert.assertTrue("2 should be after 3", node1_doc.indexOf("mom 2") > node1_doc.indexOf("mom 3"));
     }
 
     @Test
