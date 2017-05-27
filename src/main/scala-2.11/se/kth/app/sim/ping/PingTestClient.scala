@@ -1,12 +1,9 @@
 package se.kth.app.sim.ping
 
-import java.util.UUID
-
 import com.typesafe.scalalogging.StrictLogging
-import se.kth.app.events.{AppIn, AppOut}
+import se.kth.app.events.{AppIn, AppOut, Ping, Pong}
 import se.kth.app.ports.AppPort
 import se.kth.app.sim.{SimulationResultMap, SimulationResultSingleton}
-import se.kth.app.test.{Ping, Pong}
 import se.sics.kompics.Start
 import se.sics.kompics.sl.{ComponentDefinition, Init, PositivePort, handle}
 import se.sics.kompics.timer._
@@ -87,7 +84,7 @@ class PingTestClient(init: Init[PingTestClient]) extends ComponentDefinition wit
       if(counter < 5){
         logger.info("Sending Command")
         counter += 1
-        res.put(self.getId + "sent", counter);
+        res.put(self.getId + "sent", counter)
         trigger(AppIn(Ping(self, counter)) -> appPort)
       }
 

@@ -1,4 +1,4 @@
-package se.kth.app.test
+package se.kth.app.events
 
 import se.sics.kompics.KompicsEvent
 import se.sics.ktoolbox.util.network.KAddress

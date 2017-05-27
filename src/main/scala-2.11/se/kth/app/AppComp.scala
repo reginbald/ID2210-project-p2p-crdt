@@ -2,9 +2,7 @@ package se.kth.app
 
 import com.typesafe.scalalogging.StrictLogging
 import se.kth.app.events._
-import se.kth.app.logoot.Document
 import se.kth.app.ports.{AppPort, CausalOrderReliableBroadcast, LogootPort, PerfectLink}
-import se.kth.app.test.{Ping, Pong}
 import se.sics.kompics.Start
 import se.sics.kompics.sl._
 import se.sics.kompics.timer._

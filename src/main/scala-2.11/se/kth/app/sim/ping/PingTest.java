@@ -120,12 +120,9 @@ public class PingTest {
         int node4_ping = res.get("4ping", Integer.class);
         int node5_ping = res.get("5ping", Integer.class);
 
-        // Pings
+        // Verify that all correct nodes deliver the same amount
         Assert.assertTrue("Node 2 and 3 should deliver the same amount of pings", node2_ping == node3_ping);
         Assert.assertTrue("Node 2 and 4 should deliver the same amount of pings", node2_ping == node4_ping);
         Assert.assertTrue("Node 2 and 5 should deliver the same amount of pings", node2_ping == node5_ping);
-        Assert.assertTrue("Node 3 and 4 should deliver the same amount of pings", node3_ping == node4_ping);
-        Assert.assertTrue("Node 3 and 5 should deliver the same amount of pings", node3_ping == node5_ping);
-        Assert.assertTrue("Node 4 and 5 should deliver the same amount of pings", node4_ping == node5_ping);
     }
 }
