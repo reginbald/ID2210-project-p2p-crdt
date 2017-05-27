@@ -119,7 +119,6 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     out
   }
 
-  // Todo remove site will use self
   def generateLineId(p: LineId, q: LineId, N: Int, boundary: Int, site: KAddress): ListBuffer[LineId] = {
     logger.info("logoot generating line ids")
     var list:mutable.ListBuffer[LineId] = new mutable.ListBuffer[LineId]
@@ -164,36 +163,12 @@ class Logoot(init: Init[Logoot]) extends ComponentDefinition with StrictLogging 
     digits
   }
 
-  def toBase10(digits: mutable.ListBuffer[Int]): Int ={
-    //1.2.3 base 100 is 3*100^0 + 2*100^1 + 1*100^2 in base 10
-    var out: Int = 0
-    for(i <- (digits.size - 1) to 0 by -1){
-      val veldi = (digits.size - 1) - i
-      out += digits(i) * math.pow(100, veldi).toInt
-    }
-    out
-  }
-
-  def prefix(p: LineId, index: Int): mutable.ListBuffer[Int] = {
-    var out: mutable.ListBuffer[Int] = new mutable.ListBuffer[Int]
-    for (i <- 0 until index) {
-      if (i >= p.positions.size){
-        out += 0
-      } else {
-        out += p.positions(i).digit
-      }
-    }
-    out
-  }
-
 
   def Random(start: Int, end: Int): Int ={
     val rnd = new scala.util.Random
     start + rnd.nextInt( (end - start) + 1 )
   }
 
-
-  // Todo remove site will use self
   def constructId(r: mutable.ListBuffer[Int], p: LineId, q: LineId, site: KAddress): LineId = {
     val id = new LineId(mutable.ListBuffer.empty)
     for( i <- r.indices){
