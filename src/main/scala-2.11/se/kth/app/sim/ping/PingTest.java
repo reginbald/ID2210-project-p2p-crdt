@@ -124,5 +124,8 @@ public class PingTest {
         Assert.assertTrue("Node 2 and 3 should deliver the same amount of pings", node2_ping == node3_ping);
         Assert.assertTrue("Node 2 and 4 should deliver the same amount of pings", node2_ping == node4_ping);
         Assert.assertTrue("Node 2 and 5 should deliver the same amount of pings", node2_ping == node5_ping);
+
+        // Verify that some messages are from the faulty node
+        Assert.assertTrue("Should deliver message from faulty node", node2_ping > 20);
     }
 }
