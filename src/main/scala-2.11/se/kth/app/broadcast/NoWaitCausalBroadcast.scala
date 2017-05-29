@@ -38,7 +38,6 @@ class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends Component
   rb uponEvent{
     case RB_Deliver(src:KAddress, CORBData(mPast:List[(KAddress,KompicsEvent)], payload:KompicsEvent)) => handle {
       val contains = delivered.contains(payload)
-      val tmp = mPast
       if (!contains) {
         for ((s:KAddress, n:KompicsEvent) <- mPast) {
           if (!delivered.contains(n)) {
