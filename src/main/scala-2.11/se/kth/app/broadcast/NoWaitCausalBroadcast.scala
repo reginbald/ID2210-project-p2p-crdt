@@ -32,7 +32,6 @@ class NoWaitCausalBroadcast(init: Init[NoWaitCausalBroadcast]) extends Component
     case CORB_Broadcast(payload) => handle {
       trigger(RB_Broadcast(CORBData(past.toList, payload)) -> rb)
       past += ((self, payload))
-      var tmp = "sblas"
     }
   }
 
